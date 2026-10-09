@@ -1,0 +1,1431 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Agenda de Citas</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.19.0/dist/tabler-icons.min.css">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --teal:        #0F6E56;
+    --teal-light:  #E1F5EE;
+    --teal-mid:    #1D9E75;
+    --teal-dark:   #085041;
+    --amber:       #BA7517;
+    --amber-light: #FAEEDA;
+    --coral:       #D85A30;
+    --coral-light: #FAECE7;
+    --bg:          #F4F3EE;
+    --surface:     #FFFFFF;
+    --surface2:    #F8F7F3;
+    --border:      rgba(0,0,0,.10);
+    --border2:     rgba(0,0,0,.18);
+    --text:        #1A1A18;
+    --text2:       #6B6A65;
+    --text3:       #A8A79F;
+    --radius:      10px;
+    --radius-lg:   14px;
+    --font:        'Segoe UI', system-ui, -apple-system, sans-serif;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --teal:        #1D9E75;
+      --teal-light:  #04342C;
+      --teal-mid:    #0F6E56;
+      --teal-dark:   #5DCAA5;
+      --amber-light: #412402;
+      --coral-light: #4A1B0C;
+      --bg:          #1C1C1A;
+      --surface:     #242422;
+      --surface2:    #2C2C2A;
+      --border:      rgba(255,255,255,.10);
+      --border2:     rgba(255,255,255,.18);
+      --text:        #F0EFE8;
+      --text2:       #A8A79F;
+      --text3:       #6B6A65;
+    }
+  }
+
+  html, body {
+    height: 100%;
+    font-family: var(--font);
+    background: var(--bg);
+    color: var(--text);
+    font-size: 14px;
+    line-height: 1.5;
+  }
+
+  /* ─── LAYOUT ─── */
+  .app {
+    display: flex;
+    height: 100vh;
+    overflow: hidden;
+  }
+
+  /* ─── SIDEBAR ─── */
+  .sidebar {
+    width: 230px;
+    min-width: 230px;
+    background: var(--surface);
+    border-right: 0.5px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+  .brand {
+    padding: 20px 16px 14px;
+    border-bottom: 0.5px solid var(--border);
+  }
+  .brand-icon {
+    width: 34px; height: 34px;
+    background: var(--teal);
+    border-radius: 9px;
+    display: flex; align-items: center; justify-content: center;
+    margin-bottom: 9px;
+  }
+  .brand-icon i { color: #fff; font-size: 19px; }
+  .brand-name { font-size: 15px; font-weight: 600; }
+  .brand-sub  { font-size: 11px; color: var(--text2); margin-top: 1px; }
+
+  .nav { padding: 10px 8px; flex: 1; }
+  .nav-section {
+    font-size: 10px; letter-spacing: .08em;
+    color: var(--text3); padding: 12px 10px 4px;
+    text-transform: uppercase;
+  }
+  .nav-item {
+    display: flex; align-items: center; gap: 9px;
+    padding: 8px 10px;
+    border-radius: var(--radius);
+    cursor: pointer;
+    color: var(--text2);
+    transition: all .15s;
+    font-size: 13px; margin-bottom: 2px;
+    border: none; background: none;
+    width: 100%; text-align: left;
+  }
+  .nav-item:hover { background: var(--surface2); color: var(--text); }
+  .nav-item.active { background: var(--teal-light); color: var(--teal-dark); font-weight: 600; }
+  .nav-item.active i { color: var(--teal); }
+  .nav-item i { font-size: 18px; }
+
+  /* mini calendar in sidebar */
+  .mini-cal {
+    padding: 12px;
+    border-top: 0.5px solid var(--border);
+  }
+  .mini-cal-header {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 8px;
+  }
+  .mini-cal-title { font-size: 12px; font-weight: 600; }
+  .mini-cal-nav {
+    background: none; border: none; cursor: pointer;
+    color: var(--text2); padding: 2px 5px;
+    border-radius: 5px; font-size: 16px; line-height: 1;
+  }
+  .mini-cal-nav:hover { background: var(--surface2); }
+  .mini-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 1px; }
+  .mini-day-label {
+    font-size: 9px; text-align: center;
+    color: var(--text3); padding: 2px 0; font-weight: 600;
+  }
+  .mini-day {
+    font-size: 10px; text-align: center; padding: 3px 0;
+    border-radius: 4px; cursor: pointer; color: var(--text2);
+    position: relative;
+  }
+  .mini-day:hover { background: var(--surface2); }
+  .mini-day.today { background: var(--teal); color: #fff; font-weight: 600; }
+  .mini-day.selected { background: var(--teal-light); color: var(--teal-dark); font-weight: 600; }
+  .mini-day.has-apt::after {
+    content: ''; position: absolute; bottom: 1px; left: 50%;
+    transform: translateX(-50%);
+    width: 3px; height: 3px; border-radius: 50%;
+    background: var(--teal-mid);
+  }
+  .mini-day.other-month { color: var(--border2); }
+  .mini-day.off-day { color: var(--border2); cursor: default; }
+
+  /* ─── MAIN ─── */
+  .main {
+    flex: 1; display: flex; flex-direction: column;
+    overflow: hidden; background: var(--bg);
+  }
+
+  .topbar {
+    padding: 12px 18px;
+    border-bottom: 0.5px solid var(--border);
+    display: flex; align-items: center; gap: 10px;
+    background: var(--surface);
+  }
+  .topbar-title { font-size: 15px; font-weight: 600; flex: 1; }
+
+  .btn {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 6px 13px;
+    border-radius: var(--radius);
+    border: 0.5px solid var(--border2);
+    background: none; cursor: pointer;
+    font-size: 12px; font-family: var(--font);
+    color: var(--text2); transition: all .15s;
+  }
+  .btn:hover { background: var(--surface2); }
+  .btn i { font-size: 15px; }
+  .btn-primary {
+    background: var(--teal); color: #fff;
+    border-color: var(--teal);
+  }
+  .btn-primary:hover { background: var(--teal-dark); }
+  .btn-danger {
+    color: #A32D2D; border-color: transparent;
+  }
+  .btn-danger:hover { background: var(--coral-light); }
+
+  /* ─── STATS BAR ─── */
+  .stats-bar {
+    display: grid; grid-template-columns: repeat(4,1fr);
+    gap: 1px;
+    background: var(--border);
+    border-bottom: 0.5px solid var(--border);
+  }
+  .stat-cell {
+    background: var(--surface);
+    padding: 10px 16px;
+    text-align: center;
+  }
+  .stat-n { font-size: 22px; font-weight: 600; color: var(--teal); }
+  .stat-l { font-size: 10px; color: var(--text2); margin-top: 1px; }
+
+  /* ─── CALENDAR ─── */
+  .cal-body { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+  .cal-week-header {
+    display: grid; grid-template-columns: repeat(7,1fr);
+    background: var(--surface);
+    border-bottom: 0.5px solid var(--border);
+  }
+  .cal-week-day {
+    font-size: 11px; font-weight: 600; color: var(--text2);
+    text-align: center; padding: 8px 4px;
+    text-transform: uppercase; letter-spacing: .05em;
+  }
+  .cal-week-day.today-col { color: var(--teal); }
+  .cal-grid {
+    display: grid; grid-template-columns: repeat(7,1fr);
+    flex: 1; overflow-y: auto;
+    background: var(--border);
+    gap: 0.5px;
+  }
+  .cal-cell {
+    background: var(--surface);
+    min-height: 100px; padding: 6px;
+    cursor: pointer; transition: background .1s;
+    position: relative;
+  }
+  .cal-cell:hover { background: var(--surface2); }
+  .cal-cell.off-day { background: var(--bg); }
+  .cal-cell.off-day .cal-date { color: var(--text3); }
+  .cal-cell.selected-day { background: var(--teal-light) !important; }
+  .cal-cell.today .cal-date-num {
+    background: var(--teal); color: #fff;
+    border-radius: 50%; width: 22px; height: 22px;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .cal-cell.other-month { background: var(--bg); }
+  .cal-cell.other-month .cal-date-num { color: var(--text3); }
+  .cal-date { margin-bottom: 4px; }
+  .cal-date-num {
+    font-size: 12px; font-weight: 600;
+    width: 22px; height: 22px;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .cal-apt {
+    font-size: 10px; padding: 2px 5px;
+    border-radius: 4px; margin-bottom: 2px;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    cursor: pointer; font-weight: 500;
+  }
+  .cal-apt:hover { opacity: .8; }
+  .cal-apt.confirmed { background: #C0DD97; color: #3B6D11; }
+  .cal-apt.pending   { background: #FAC775; color: #854F0B; }
+  .cal-apt.cancelled { background: #F7C1C1; color: #791F1F; }
+  .cal-apt.break     { background: var(--surface2); color: var(--text3); font-style: italic; }
+  .cal-more { font-size: 10px; color: var(--text3); padding: 1px 0; }
+
+  /* ─── DAY PANEL ─── */
+  .day-panel {
+    width: 280px; min-width: 280px;
+    border-left: 0.5px solid var(--border);
+    display: flex; flex-direction: column;
+    background: var(--surface);
+    overflow: hidden;
+  }
+  .day-panel-header {
+    padding: 14px 16px 10px;
+    border-bottom: 0.5px solid var(--border);
+  }
+  .day-panel-date { font-size: 14px; font-weight: 600; }
+  .day-panel-sub  { font-size: 11px; color: var(--text2); margin-top: 2px; }
+  .day-slots { flex: 1; overflow-y: auto; padding: 8px; }
+  .time-slot { display: flex; gap: 8px; align-items: flex-start; margin-bottom: 4px; }
+  .time-label {
+    font-size: 10px; color: var(--text3);
+    min-width: 38px; padding-top: 7px; text-align: right;
+  }
+  .slot-block {
+    flex: 1; min-height: 30px;
+    border-radius: 7px;
+    border: 0.5px dashed var(--border2);
+    display: flex; align-items: center; padding: 5px 8px;
+    cursor: pointer; transition: all .15s; position: relative;
+  }
+  .slot-block:hover { border-color: var(--teal-mid); background: var(--teal-light); }
+  .slot-block.filled { border-style: solid; }
+  .slot-block.filled.confirmed { background: #EAF3DE; border-color: #97C459; }
+  .slot-block.filled.pending   { background: #FAEEDA; border-color: #EF9F27; }
+  .slot-block.filled.cancelled { background: #FCEBEB; border-color: #F09595; }
+  .slot-block.filled.break-slot {
+    background: var(--surface2); border-color: var(--border2); cursor: default;
+  }
+  .slot-block.filled.break-slot:hover { background: var(--surface2); border-color: var(--border2); }
+  .slot-client  { font-size: 11px; font-weight: 600; }
+  .slot-service { font-size: 10px; color: var(--text2); }
+  .slot-status {
+    font-size: 9px; padding: 1px 6px;
+    border-radius: 10px; position: absolute; right: 6px; top: 6px;
+    font-weight: 600;
+  }
+  .slot-status.confirmed { background: #C0DD97; color: #3B6D11; }
+  .slot-status.pending   { background: #FAC775; color: #854F0B; }
+  .slot-status.cancelled { background: #F7C1C1; color: #791F1F; }
+  .slot-add { font-size: 11px; color: var(--text3); display: flex; align-items: center; gap: 4px; }
+  .day-stat-row {
+    padding: 10px 12px;
+    border-top: 0.5px solid var(--border);
+    display: flex; gap: 8px;
+  }
+  .day-stat {
+    flex: 1; background: var(--surface2);
+    border-radius: var(--radius); padding: 8px 10px;
+  }
+  .day-stat-n { font-size: 20px; font-weight: 600; color: var(--teal); }
+  .day-stat-l { font-size: 10px; color: var(--text2); margin-top: 1px; }
+  .empty-hint {
+    font-size: 12px; color: var(--text3);
+    padding: 30px 16px; text-align: center;
+  }
+  .empty-hint i { font-size: 28px; display: block; margin-bottom: 8px; opacity: .3; }
+
+  /* ─── AGENDA ─── */
+  .agenda-body { flex: 1; overflow-y: auto; padding: 16px 20px; }
+  .agenda-date-group { margin-bottom: 20px; }
+  .agenda-date-label {
+    font-size: 11px; font-weight: 600; color: var(--text2);
+    text-transform: uppercase; letter-spacing: .08em;
+    margin-bottom: 8px;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .agenda-date-label::after {
+    content: ''; flex: 1; height: 0.5px; background: var(--border);
+  }
+  .agenda-row {
+    display: flex; gap: 12px; align-items: stretch;
+    padding: 10px 12px;
+    border-radius: var(--radius);
+    border: 0.5px solid var(--border);
+    margin-bottom: 6px;
+    background: var(--surface);
+    cursor: pointer; transition: all .15s;
+  }
+  .agenda-row:hover { border-color: var(--teal-mid); box-shadow: 0 0 0 2px var(--teal-light); }
+  .agenda-time-col { min-width: 52px; display: flex; flex-direction: column; align-items: flex-end; justify-content: center; }
+  .agenda-time { font-size: 12px; font-weight: 600; }
+  .agenda-dur  { font-size: 10px; color: var(--text3); }
+  .agenda-line { width: 2px; border-radius: 1px; background: var(--teal-mid); align-self: stretch; margin: 0 4px; }
+  .agenda-line.pending  { background: var(--amber); }
+  .agenda-line.cancelled { background: var(--coral); }
+  .agenda-line.break    { background: var(--border2); }
+  .agenda-info { flex: 1; }
+  .agenda-client  { font-size: 13px; font-weight: 600; }
+  .agenda-service { font-size: 11px; color: var(--text2); margin-top: 1px; }
+  .agenda-badge {
+    font-size: 9px; padding: 2px 7px; border-radius: 10px; font-weight: 600;
+  }
+  .agenda-badge.confirmed { background: #EAF3DE; color: #3B6D11; }
+  .agenda-badge.pending   { background: #FAEEDA; color: #854F0B; }
+  .agenda-badge.cancelled { background: #FCEBEB; color: #791F1F; }
+  .agenda-actions { display: flex; align-items: center; gap: 4px; }
+  .icon-btn {
+    padding: 5px; border-radius: 6px; border: none;
+    background: none; cursor: pointer; color: var(--text3);
+    transition: all .15s; font-size: 16px;
+  }
+  .icon-btn:hover { background: var(--surface2); color: var(--text); }
+
+  /* ─── SETTINGS ─── */
+  .settings-body { flex: 1; overflow-y: auto; padding: 18px 20px; }
+  .settings-card {
+    background: var(--surface);
+    border: 0.5px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 16px 18px; margin-bottom: 14px;
+  }
+  .settings-card-title {
+    font-size: 13px; font-weight: 600; margin-bottom: 14px;
+    display: flex; align-items: center; gap: 7px;
+  }
+  .settings-card-title i { color: var(--teal); font-size: 18px; }
+  .days-grid { display: grid; grid-template-columns: repeat(7,1fr); gap: 6px; }
+  .day-toggle {
+    padding: 9px 4px; border-radius: var(--radius);
+    border: 0.5px solid var(--border); text-align: center;
+    cursor: pointer; transition: all .15s; background: var(--surface);
+  }
+  .day-toggle.on { background: var(--teal-light); border-color: var(--teal-mid); color: var(--teal-dark); }
+  .day-toggle.off { color: var(--text3); }
+  .day-toggle-name { font-size: 11px; font-weight: 600; display: block; }
+  .day-toggle-dot { width: 6px; height: 6px; border-radius: 50%; margin: 4px auto 0; background: var(--border2); }
+  .day-toggle.on .day-toggle-dot { background: var(--teal-mid); }
+  .hours-row { display: grid; grid-template-columns: 1fr auto 1fr; gap: 10px; align-items: center; margin-bottom: 12px; }
+  .hours-sep { font-size: 12px; color: var(--text3); text-align: center; }
+  .form-label { font-size: 10px; color: var(--text2); margin-bottom: 4px; display: block; font-weight: 600; text-transform: uppercase; letter-spacing: .06em; }
+  .form-input {
+    width: 100%; padding: 7px 10px;
+    border-radius: var(--radius); border: 0.5px solid var(--border2);
+    background: var(--surface); color: var(--text);
+    font-size: 12px; font-family: var(--font);
+    transition: border-color .15s;
+  }
+  .form-input:focus { outline: none; border-color: var(--teal); box-shadow: 0 0 0 2px var(--teal-light); }
+  .dur-row { display: flex; gap: 7px; flex-wrap: wrap; margin-top: 4px; }
+  .dur-btn {
+    padding: 5px 13px; border-radius: 20px;
+    border: 0.5px solid var(--border2); background: none;
+    cursor: pointer; font-size: 11px; color: var(--text2);
+    font-family: var(--font); transition: all .15s;
+  }
+  .dur-btn.active { background: var(--teal-light); border-color: var(--teal-mid); color: var(--teal-dark); font-weight: 600; }
+  .break-item {
+    display: flex; align-items: center; gap: 10px;
+    padding: 8px 0; border-bottom: 0.5px solid var(--border);
+  }
+  .break-item:last-child { border-bottom: none; }
+  .break-time { font-size: 12px; font-weight: 600; min-width: 115px; }
+  .break-label { font-size: 11px; color: var(--text2); flex: 1; }
+  .break-del {
+    padding: 4px 6px; border: none; background: none;
+    cursor: pointer; color: var(--text3); border-radius: 5px; font-size: 16px;
+  }
+  .break-del:hover { background: var(--coral-light); color: var(--coral); }
+  .add-break-row { display: grid; grid-template-columns: 1fr 1fr 1fr auto; gap: 8px; align-items: flex-end; margin-top: 12px; }
+  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .form-group { margin-bottom: 12px; }
+  .form-group:last-child { margin-bottom: 0; }
+
+  /* services */
+  .service-grid-header {
+    display: grid; grid-template-columns: 1fr 70px 90px 36px;
+    gap: 8px; padding-bottom: 6px;
+    border-bottom: 0.5px solid var(--border);
+    margin-bottom: 6px;
+  }
+  .service-grid-header span { font-size: 10px; color: var(--text3); font-weight: 600; text-transform: uppercase; letter-spacing: .06em; }
+  .service-row {
+    display: grid; grid-template-columns: 1fr 70px 90px 36px;
+    gap: 8px; align-items: center; padding: 8px 0;
+    border-bottom: 0.5px solid var(--border);
+  }
+  .service-row:last-child { border-bottom: none; }
+  .service-name   { font-size: 12px; font-weight: 600; }
+  .service-detail { font-size: 11px; color: var(--text2); text-align: center; }
+
+  /* ─── MODAL ─── */
+  .modal-overlay {
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,.4);
+    display: none; align-items: center; justify-content: center;
+    z-index: 1000;
+    backdrop-filter: blur(2px);
+  }
+  .modal-overlay.open { display: flex; }
+  .modal {
+    background: var(--surface);
+    border-radius: var(--radius-lg);
+    border: 0.5px solid var(--border2);
+    padding: 22px 24px;
+    width: 380px; max-height: 90vh;
+    overflow-y: auto;
+    box-shadow: 0 20px 60px rgba(0,0,0,.18);
+    animation: modalIn .18s ease;
+  }
+  @keyframes modalIn { from { transform: scale(.95); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+  .modal-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 18px; }
+  .modal-title  { font-size: 16px; font-weight: 600; }
+  .modal-close  {
+    background: none; border: none; cursor: pointer;
+    color: var(--text2); padding: 5px; border-radius: 6px; font-size: 20px;
+  }
+  .modal-close:hover { background: var(--surface2); }
+  .status-radio { display: flex; gap: 7px; flex-wrap: wrap; }
+  .status-opt {
+    padding: 4px 13px; border-radius: 20px;
+    border: 0.5px solid var(--border2);
+    cursor: pointer; font-size: 11px; color: var(--text2);
+    font-weight: 600; transition: all .15s;
+  }
+  .status-opt.active.confirmed { background: #EAF3DE; border-color: #97C459; color: #3B6D11; }
+  .status-opt.active.pending   { background: #FAEEDA; border-color: #EF9F27; color: #854F0B; }
+  .status-opt.active.cancelled { background: #FCEBEB; border-color: #F09595; color: #791F1F; }
+  .modal-footer {
+    display: flex; justify-content: flex-end;
+    gap: 8px; margin-top: 18px; padding-top: 14px;
+    border-top: 0.5px solid var(--border);
+  }
+
+  /* ─── SCROLLBARS ─── */
+  ::-webkit-scrollbar { width: 5px; height: 5px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 4px; }
+  ::-webkit-scrollbar-thumb:hover { background: var(--text3); }
+
+  /* ─── MISC ─── */
+  .badge {
+    display: inline-block; font-size: 9px; padding: 2px 7px;
+    border-radius: 10px; font-weight: 600;
+  }
+  .badge.today { background: var(--teal-light); color: var(--teal-dark); }
+
+  #auth{position:fixed;inset:0;z-index:2000;background:var(--bg);display:flex;align-items:center;justify-content:center}
+  .auth-card{background:var(--surface);border:.5px solid var(--border2);border-radius:var(--radius-lg);padding:26px;width:360px;max-width:92vw}
+  .auth-card h2{font-size:17px;margin-bottom:4px}.auth-card p{font-size:12px;color:var(--text2);margin-bottom:14px}
+  .auth-card a{color:var(--teal)}
+  .err{color:#A32D2D;font-size:12px;min-height:16px;margin:4px 0 8px}
+  .modal.wide{width:600px;max-width:94vw}
+  .tbl{width:100%;border-collapse:collapse;font-size:12px}.tbl td,.tbl th{padding:6px 4px;border-bottom:.5px solid var(--border);text-align:left}
+  .userchip{padding:10px 16px;font-size:11px;color:var(--text2);border-bottom:.5px solid var(--border)}
+  .nav{overflow-y:auto}
+</style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+</head>
+<body>
+
+<div class="app">
+
+  <!-- ═══════════ SIDEBAR ═══════════ -->
+  <aside class="sidebar">
+    <div class="brand">
+      <div class="brand-icon"><i class="ti ti-calendar-event"></i></div>
+      <div class="brand-name" id="biz-name">Mi Negocio</div>
+      <div class="brand-sub">Gestión de citas</div>
+    </div>
+
+    <div class="userchip"><b id="u-name"></b> · <span id="u-role"></span><select class="form-input" id="ag-sel" onchange="loadAgenda(this.value)" style="margin-top:6px"></select></div>
+<nav class="nav">
+      <div class="nav-section">Vistas</div>
+      <button class="nav-item active" id="nav-cal"      onclick="switchView('cal')"><i class="ti ti-calendar"></i> Calendario</button>
+      <button class="nav-item"        id="nav-agenda"   onclick="switchView('agenda')"><i class="ti ti-list-details"></i> Agenda</button>
+      <div class="nav-section">Gestión</div>
+      <button class="nav-item"        id="nav-settings" onclick="switchView('settings')"><i class="ti ti-clock"></i> Horarios</button>
+      <button class="nav-item"        id="nav-services" onclick="switchView('services')"><i class="ti ti-tools"></i> Servicios</button>
+    <div class="nav-section">Cuenta</div>
+      <button class="nav-item" onclick="openAgendas()"><i class="ti ti-building-store"></i> Mis agendas</button>
+      <button class="nav-item" onclick="openSec()"><i class="ti ti-shield-lock"></i> Seguridad</button>
+      <button class="nav-item adm" onclick="openUsers()"><i class="ti ti-users"></i> Usuarios</button>
+      <button class="nav-item" onclick="logout()"><i class="ti ti-logout"></i> Salir</button>
+    </nav>
+
+    <!-- Mini calendario -->
+    <div class="mini-cal">
+      <div class="mini-cal-header">
+        <span class="mini-cal-title" id="mini-month-label"></span>
+        <div style="display:flex;gap:2px">
+          <button class="mini-cal-nav" onclick="miniNav(-1)">&#8249;</button>
+          <button class="mini-cal-nav" onclick="miniNav(1)">&#8250;</button>
+        </div>
+      </div>
+      <div class="mini-grid" id="mini-day-labels"></div>
+      <div class="mini-grid" id="mini-cal-grid"></div>
+    </div>
+  </aside>
+
+  <!-- ═══════════ MAIN ═══════════ -->
+  <div class="main" id="main">
+
+    <!-- ── CALENDARIO ── -->
+    <div id="view-cal" style="display:flex;flex-direction:column;flex:1;overflow:hidden">
+      <div class="topbar">
+        <button class="btn" onclick="calNav(-1)"><i class="ti ti-chevron-left"></i></button>
+        <span class="topbar-title" id="cal-month-title"></span>
+        <button class="btn" onclick="calNav(1)"><i class="ti ti-chevron-right"></i></button>
+        <button class="btn" onclick="goToday()"><i class="ti ti-home"></i> Hoy</button>
+        <span style="flex:1"></span>
+        <button class="btn btn-primary" onclick="openNewApt()"><i class="ti ti-plus"></i> Nueva cita</button>
+      </div>
+
+      <div class="stats-bar">
+        <div class="stat-cell"><div class="stat-n" id="st-today">0</div><div class="stat-l">Hoy</div></div>
+        <div class="stat-cell"><div class="stat-n" id="st-week">0</div><div class="stat-l">Esta semana</div></div>
+        <div class="stat-cell"><div class="stat-n" id="st-month">0</div><div class="stat-l">Este mes</div></div>
+        <div class="stat-cell"><div class="stat-n" id="st-pending">0</div><div class="stat-l">Pendientes</div></div>
+      </div>
+
+      <div class="cal-body">
+        <div class="cal-week-header" id="cal-week-header"></div>
+        <div class="cal-grid" id="cal-grid"></div>
+      </div>
+    </div>
+
+    <!-- ── AGENDA ── -->
+    <div id="view-agenda" style="display:none;flex-direction:column;flex:1;overflow:hidden">
+      <div class="topbar">
+        <span class="topbar-title">Agenda</span>
+        <span style="flex:1"></span>
+        <button class="btn btn-primary" onclick="openNewApt()"><i class="ti ti-plus"></i> Nueva cita</button>
+      </div>
+      <div class="agenda-body" id="agenda-body"></div>
+    </div>
+
+    <!-- ── HORARIOS ── -->
+    <div id="view-settings" style="display:none;flex-direction:column;flex:1;overflow:hidden">
+      <div class="topbar">
+        <span class="topbar-title">Configuración de horarios</span>
+        <span style="flex:1"></span>
+        <button class="btn btn-primary" onclick="saveSettings()" id="save-settings-btn"><i class="ti ti-check"></i> Guardar</button>
+      </div>
+      <div class="settings-body">
+
+        <div class="settings-card">
+          <div class="settings-card-title"><i class="ti ti-calendar-week"></i> Días laborables</div>
+          <div class="days-grid" id="days-grid"></div>
+        </div>
+
+        <div class="settings-card">
+          <div class="settings-card-title"><i class="ti ti-clock"></i> Horario de atención</div>
+          <div class="hours-row">
+            <div>
+              <label class="form-label">Apertura</label>
+              <select class="form-input" id="hour-start"></select>
+            </div>
+            <div class="hours-sep">—</div>
+            <div>
+              <label class="form-label">Cierre</label>
+              <select class="form-input" id="hour-end"></select>
+            </div>
+          </div>
+          <label class="form-label">Duración de cada cita</label>
+          <div class="dur-row" id="dur-row"></div>
+        </div>
+
+        <div class="settings-card">
+          <div class="settings-card-title"><i class="ti ti-coffee"></i> Descansos del día</div>
+          <div id="breaks-list"></div>
+          <div style="margin-top:12px;border-top:0.5px solid var(--border);padding-top:12px">
+            <label class="form-label">Agregar descanso</label>
+            <div class="add-break-row">
+              <div>
+                <label class="form-label">Inicio</label>
+                <input type="time" class="form-input" id="break-start" value="13:00">
+              </div>
+              <div>
+                <label class="form-label">Fin</label>
+                <input type="time" class="form-input" id="break-end" value="14:00">
+              </div>
+              <div>
+                <label class="form-label">Etiqueta</label>
+                <input type="text" class="form-input" id="break-label" placeholder="Comida">
+              </div>
+              <div style="display:flex;align-items:flex-end">
+                <button class="btn btn-primary" onclick="addBreak()" style="padding:7px 12px"><i class="ti ti-plus"></i></button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="settings-card">
+          <div class="settings-card-title"><i class="ti ti-building-store"></i> Información del negocio</div>
+          <div class="form-group">
+            <label class="form-label">Nombre del negocio</label>
+            <input type="text" class="form-input" id="biz-input" placeholder="Mi Negocio">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Teléfono / WhatsApp</label>
+            <input type="text" class="form-input" id="biz-phone" placeholder="+52 33 0000 0000">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Dirección</label>
+            <input type="text" class="form-input" id="biz-address" placeholder="Calle, número, ciudad">
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ── SERVICIOS ── -->
+    <div id="view-services" style="display:none;flex-direction:column;flex:1;overflow:hidden">
+      <div class="topbar">
+        <span class="topbar-title">Catálogo de servicios</span>
+      </div>
+      <div class="settings-body">
+        <div class="settings-card">
+          <div class="settings-card-title"><i class="ti ti-tools"></i> Servicios registrados</div>
+          <div class="service-grid-header">
+            <span>Servicio</span>
+            <span style="text-align:center">Min</span>
+            <span style="text-align:center">Precio</span>
+            <span></span>
+          </div>
+          <div id="services-list"></div>
+        </div>
+        <div class="settings-card">
+          <div class="settings-card-title"><i class="ti ti-plus-circle"></i> Nuevo servicio</div>
+          <div class="form-row" style="margin-bottom:10px">
+            <div class="form-group" style="margin-bottom:0">
+              <label class="form-label">Nombre</label>
+              <input type="text" class="form-input" id="svc-name" placeholder="Ej: Corte de cabello">
+            </div>
+            <div class="form-group" style="margin-bottom:0">
+              <label class="form-label">Duración (min)</label>
+              <input type="number" class="form-input" id="svc-dur" placeholder="30" min="5" step="5">
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group" style="margin-bottom:0">
+              <label class="form-label">Precio</label>
+              <input type="text" class="form-input" id="svc-price" placeholder="$200">
+            </div>
+            <div style="display:flex;align-items:flex-end">
+              <button class="btn btn-primary" style="width:100%;justify-content:center" onclick="saveService()">
+                <i class="ti ti-check"></i> Guardar servicio
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /main -->
+
+  <!-- ═══════════ DAY PANEL ═══════════ -->
+  <aside class="day-panel" id="day-panel">
+    <div class="day-panel-header">
+      <div class="day-panel-date" id="panel-date-title">Selecciona un día</div>
+      <div class="day-panel-sub"  id="panel-date-sub"></div>
+    </div>
+    <div class="day-slots" id="day-slots"></div>
+    <div class="day-stat-row">
+      <div class="day-stat"><div class="day-stat-n" id="ps-count">0</div><div class="day-stat-l">Citas</div></div>
+      <div class="day-stat"><div class="day-stat-n" id="ps-avail">0</div><div class="day-stat-l">Disponibles</div></div>
+    </div>
+  </aside>
+
+</div><!-- /app -->
+
+<!-- ═══════════ MODAL ═══════════ -->
+<div class="modal-overlay" id="modal" onclick="closeModalOutside(event)">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-title" id="modal-title">Nueva cita</span>
+      <button class="modal-close" onclick="closeModal()"><i class="ti ti-x"></i></button>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">Cliente</label>
+      <input type="text" class="form-input" id="apt-client" placeholder="Nombre completo">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Teléfono</label>
+      <input type="text" class="form-input" id="apt-phone" placeholder="+52 33 0000 0000">
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">Fecha</label>
+        <input type="date" class="form-input" id="apt-date">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Hora</label>
+        <input type="time" class="form-input" id="apt-time">
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Servicio</label>
+      <select class="form-input" id="apt-service"></select>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Notas</label>
+      <input type="text" class="form-input" id="apt-notes" placeholder="Observaciones adicionales...">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Estado</label>
+      <div class="status-radio" id="status-radio">
+        <span class="status-opt confirmed active" onclick="setStatus('confirmed',this)">Confirmada</span>
+        <span class="status-opt pending"          onclick="setStatus('pending',this)">Pendiente</span>
+        <span class="status-opt cancelled"        onclick="setStatus('cancelled',this)">Cancelada</span>
+      </div>
+    </div>
+
+    <div class="modal-footer">
+      <button class="btn btn-danger" id="modal-del-btn" onclick="deleteApt()" style="display:none">
+        <i class="ti ti-trash"></i> Eliminar
+      </button>
+      <span style="flex:1"></span>
+      <button class="btn" onclick="closeModal()">Cancelar</button>
+      <button class="btn btn-primary" onclick="saveApt()"><i class="ti ti-check"></i> Guardar</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════ SCRIPT ═══════════ -->
+<div id="auth"><div class="auth-card" id="auth-card"></div></div>
+<div class="modal-overlay" id="gm" onclick="if(event.target===this)gmClose()"><div class="modal wide">
+  <div class="modal-header"><span class="modal-title" id="gm-t"></span><button class="modal-close" onclick="gmClose()"><i class="ti ti-x"></i></button></div>
+  <div id="gm-b"></div></div></div>
+<script>
+/* ── Constants ── */
+const MONTHS     = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+const DAYS_SHORT = ['Dom','Lun','Mar','Mié','Jue','Vie','Sáb'];
+const DAYS_FULL  = ['Domingo','Lunes','Martes','Miércoles','Jueves','Viernes','Sábado'];
+
+/* ── State ── */
+let S = {
+  view:        'cal',
+  today:       new Date(),
+  calDate:     new Date(),
+  miniDate:    new Date(),
+  selectedDay: null,
+  workDays:    [1, 2, 3, 4, 5],       // 0=Dom … 6=Sáb
+  hourStart:   '09:00',
+  hourEnd:     '18:00',
+  slotDur:     60,                     // minutos
+  breaks:      [{ start:'13:00', end:'14:00', label:'Comida' }],
+  appointments: [],
+  services: [
+    { id:1, name:'Consulta general', dur:60,  price:'$500' },
+    { id:2, name:'Seguimiento',      dur:30,  price:'$300' },
+    { id:3, name:'Procedimiento',    dur:90,  price:'$800' }
+  ],
+  modalStatus:  'confirmed',
+  editingAptId: null
+};
+
+/* ── Utils ── */
+const fmtKey  = d => d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate());
+const parseKey = k => { const [y,m,d]=k.split('-'); return new Date(+y,+m-1,+d); };
+const sameDay  = (a,b) => a.getFullYear()===b.getFullYear() && a.getMonth()===b.getMonth() && a.getDate()===b.getDate();
+const pad      = n => String(n).padStart(2,'0');
+const $ = id => document.getElementById(id);
+
+/* ── Seed demo data ── */
+function seedAppointments() {
+  const clients = ['Ana García','Luis Martínez','Sofía Herrera','Carlos López','Valentina Ruiz','Miguel Torres','Camila Pérez','Jorge Ramos','Daniela Cruz','Fernando Soto'];
+  const statuses = ['confirmed','confirmed','confirmed','pending','pending'];
+  let id = 1;
+  for (let i = -3; i < 25; i++) {
+    const d = new Date(S.today); d.setDate(S.today.getDate()+i);
+    if (!S.workDays.includes(d.getDay())) continue;
+    const n = Math.floor(Math.random()*3)+1;
+    const hours = ['09:00','10:00','11:00','12:00','15:00','16:00'];
+    const used = [];
+    for (let s=0; s<n; s++) {
+      const h = hours[Math.floor(Math.random()*hours.length)];
+      if (used.includes(h)) continue;
+      used.push(h);
+      S.appointments.push({
+        id: id++,
+        client:  clients[Math.floor(Math.random()*clients.length)],
+        phone:   '',
+        date:    fmtKey(d),
+        time:    h,
+        service: S.services[Math.floor(Math.random()*S.services.length)].name,
+        status:  statuses[Math.floor(Math.random()*statuses.length)],
+        notes:   ''
+      });
+    }
+  }
+}
+
+/* ── Views ── */
+function switchView(v) {
+  ['cal','agenda','settings','services'].forEach(x => {
+    $('view-'+x).style.display = 'none';
+    $('nav-'+x).classList.remove('active');
+  });
+  $('view-'+v).style.display = 'flex';
+  $('nav-'+v).classList.add('active');
+  $('day-panel').style.display = v==='cal' ? 'flex' : 'none';
+  S.view = v;
+  if (v==='cal')      { renderCal(); renderMiniCal(); renderDayPanel(); }
+  if (v==='agenda')   renderAgenda();
+  if (v==='settings') renderSettings();
+  if (v==='services') renderServices();
+}
+
+/* ── Calendar ── */
+function renderCal() {
+  const d = S.calDate;
+  $('cal-month-title').textContent = MONTHS[d.getMonth()] + ' ' + d.getFullYear();
+
+  // Week header
+  const hdr = $('cal-week-header');
+  hdr.innerHTML = DAYS_SHORT.map((n,i) =>
+    `<div class="cal-week-day${new Date().getDay()===i?' today-col':''}">${n}</div>`
+  ).join('');
+
+  // Grid
+  const grid = $('cal-grid');
+  grid.innerHTML = '';
+  const y=d.getFullYear(), m=d.getMonth();
+  const first = new Date(y,m,1).getDay();
+  const last  = new Date(y,m+1,0).getDate();
+  const total = Math.ceil((first+last)/7)*7;
+
+  for (let i=0; i<total; i++) {
+    const dayN = i - first + 1;
+    const date = new Date(y, m, dayN);
+    const key  = fmtKey(date);
+    const dow  = date.getDay();
+    const isWork  = S.workDays.includes(dow);
+    const isToday = sameDay(date, S.today);
+    const isSel   = S.selectedDay && sameDay(date, parseKey(S.selectedDay));
+    const isOther = date.getMonth() !== m;
+    const apts    = S.appointments.filter(a => a.date===key);
+
+    let cls = 'cal-cell';
+    if (!isWork)  cls += ' off-day';
+    if (isToday)  cls += ' today';
+    if (isSel)    cls += ' selected-day';
+    if (isOther)  cls += ' other-month';
+
+    let inner = '';
+    if (dayN > 0 && dayN <= last) {
+      // Appointments (max 2)
+      apts.slice(0,2).forEach(a => {
+        inner += `<div class="cal-apt ${a.status}" onclick="event.stopPropagation();editApt(${a.id})">${a.time} ${esc(a.client.split(' ')[0])}</div>`;
+      });
+      if (apts.length > 2) inner += `<div class="cal-more">+${apts.length-2} más</div>`;
+      // Breaks (only work days)
+      if (isWork && !isOther) {
+        S.breaks.forEach(b => { inner += `<div class="cal-apt break">${b.start} ${esc(b.label)}</div>`; });
+      }
+    }
+
+    const numHtml = `<div class="cal-date"><div class="cal-date-num">${dayN>0&&dayN<=last ? dayN : ''}</div></div>`;
+    grid.innerHTML += `<div class="${cls}" onclick="selectDay('${key}')">${numHtml}${inner}</div>`;
+  }
+  updateStats();
+}
+
+function renderMiniCal() {
+  const d = S.miniDate;
+  $('mini-month-label').textContent = MONTHS[d.getMonth()].slice(0,3)+' '+d.getFullYear();
+  $('mini-day-labels').innerHTML = DAYS_SHORT.map(x=>`<div class="mini-day-label">${x[0]}</div>`).join('');
+  const grid = $('mini-cal-grid');
+  grid.innerHTML = '';
+  const y=d.getFullYear(), m=d.getMonth();
+  const first=new Date(y,m,1).getDay(), last=new Date(y,m+1,0).getDate();
+  const total=Math.ceil((first+last)/7)*7;
+  for (let i=0; i<total; i++) {
+    const dayN=i-first+1, date=new Date(y,m,dayN), key=fmtKey(date);
+    const isWork=S.workDays.includes(date.getDay());
+    const isToday=sameDay(date,S.today);
+    const isSel=S.selectedDay===key;
+    const isOther=date.getMonth()!==m;
+    const hasApt=S.appointments.some(a=>a.date===key);
+    let cls='mini-day';
+    if (isToday)      cls+=' today';
+    else if (isSel)   cls+=' selected';
+    if (isOther)      cls+=' other-month';
+    if (!isWork)      cls+=' off-day';
+    if (hasApt&&!isOther) cls+=' has-apt';
+    grid.innerHTML += `<div class="${cls}" onclick="selectDay('${key}')">${dayN>0&&dayN<=last?dayN:''}</div>`;
+  }
+}
+
+function selectDay(key) {
+  S.selectedDay = key;
+  // sync mini calendar month if needed
+  const d = parseKey(key);
+  S.miniDate = new Date(d);
+  renderCal(); renderMiniCal(); renderDayPanel();
+}
+
+/* ── Day panel ── */
+function renderDayPanel() {
+  if (!S.selectedDay) {
+    $('panel-date-title').textContent = 'Selecciona un día';
+    $('panel-date-sub').textContent = '';
+    $('day-slots').innerHTML = '';
+    return;
+  }
+  const date = parseKey(S.selectedDay);
+  const dow  = date.getDay();
+  $('panel-date-title').textContent = `${DAYS_FULL[dow]} ${date.getDate()} de ${MONTHS[date.getMonth()]}`;
+  const isWork = S.workDays.includes(dow);
+  if (!isWork) {
+    $('panel-date-sub').textContent = 'Día no laborable';
+    $('day-slots').innerHTML = `<div class="empty-hint"><i class="ti ti-moon"></i>Día de descanso</div>`;
+    $('ps-count').textContent = 0;
+    $('ps-avail').textContent = 0;
+    return;
+  }
+  $('panel-date-sub').textContent = 'Día laborable';
+  const slots = generateSlots();
+  const apts  = S.appointments.filter(a => a.date===S.selectedDay);
+  let html='', aptCount=0, availCount=0;
+  slots.forEach(t => {
+    const br = S.breaks.find(b => t>=b.start && t<b.end);
+    if (br) {
+      if (t===br.start)
+        html += `<div class="time-slot"><span class="time-label">${t}</span><div class="slot-block filled break-slot"><span class="slot-client">${esc(br.label)}</span>&nbsp;<span class="slot-service">Descanso</span></div></div>`;
+      return;
+    }
+    const apt = apts.find(a => a.time===t);
+    if (apt) {
+      aptCount++;
+      html += `<div class="time-slot"><span class="time-label">${t}</span>
+        <div class="slot-block filled ${apt.status}" onclick="editApt(${apt.id})">
+          <div><div class="slot-client">${esc(apt.client)}</div><div class="slot-service">${esc(apt.service)}</div></div>
+          <span class="slot-status ${apt.status}">${apt.status==='confirmed'?'✓ Conf':'⏳ Pend'}</span>
+        </div></div>`;
+    } else {
+      availCount++;
+      html += `<div class="time-slot"><span class="time-label">${t}</span>
+        <div class="slot-block" onclick="openNewAptAt('${S.selectedDay}','${t}')">
+          <span class="slot-add"><i class="ti ti-plus" style="font-size:12px"></i> Agregar cita</span>
+        </div></div>`;
+    }
+  });
+  $('day-slots').innerHTML = html || '<div class="empty-hint">Sin horarios configurados</div>';
+  $('ps-count').textContent = aptCount;
+  $('ps-avail').textContent = availCount;
+}
+
+function generateSlots() {
+  const slots=[];
+  const [sh,sm]=S.hourStart.split(':').map(Number);
+  const [eh,em]=S.hourEnd.split(':').map(Number);
+  let cur = sh*60+sm;
+  const end = eh*60+em;
+  while (cur < end) {
+    slots.push(pad(Math.floor(cur/60))+':'+pad(cur%60));
+    cur += S.slotDur;
+  }
+  return slots;
+}
+
+/* ── Agenda ── */
+function renderAgenda() {
+  const body = $('agenda-body');
+  const all  = [...S.appointments].sort((a,b)=>(a.date+a.time).localeCompare(b.date+b.time));
+  if (!all.length) { body.innerHTML = '<div class="empty-hint" style="padding:60px 0"><i class="ti ti-calendar-off"></i>No hay citas registradas</div>'; return; }
+  const grouped = {};
+  all.forEach(a => { (grouped[a.date]||(grouped[a.date]=[])).push(a); });
+  let html='';
+  Object.keys(grouped).sort().forEach(key => {
+    const date  = parseKey(key);
+    const isToday = sameDay(date,S.today);
+    const label = `${DAYS_FULL[date.getDay()]} ${date.getDate()} de ${MONTHS[date.getMonth()]} ${date.getFullYear()}`;
+    html += `<div class="agenda-date-group">
+      <div class="agenda-date-label">${isToday?'<span class="badge today">Hoy</span>&nbsp;':''}${label}</div>`;
+    grouped[key].forEach(a => {
+      html += `<div class="agenda-row" onclick="editApt(${a.id})">
+        <div class="agenda-time-col"><div class="agenda-time">${a.time}</div><div class="agenda-dur">${S.slotDur}min</div></div>
+        <div class="agenda-line ${a.status}"></div>
+        <div class="agenda-info">
+          <div class="agenda-client">${esc(a.client)}</div>
+          <div class="agenda-service">${esc(a.service)}${a.notes?' · '+esc(a.notes):''}</div>
+        </div>
+        <div class="agenda-actions">
+          <span class="agenda-badge ${a.status}">${a.status==='confirmed'?'Confirmada':a.status==='pending'?'Pendiente':'Cancelada'}</span>
+          <button class="icon-btn" onclick="event.stopPropagation();editApt(${a.id})" aria-label="Editar"><i class="ti ti-edit"></i></button>
+        </div>
+      </div>`;
+    });
+    html += '</div>';
+  });
+  body.innerHTML = html;
+}
+
+/* ── Settings ── */
+function renderSettings() {
+  // Days
+  $('days-grid').innerHTML = DAYS_SHORT.map((n,i)=>
+    `<div class="day-toggle ${S.workDays.includes(i)?'on':'off'}" onclick="toggleDay(${i})">
+      <span class="day-toggle-name">${n}</span>
+      <div class="day-toggle-dot"></div>
+    </div>`
+  ).join('');
+  // Hours
+  const hs=$('hour-start'), he=$('hour-end');
+  hs.innerHTML=''; he.innerHTML='';
+  for (let h=6; h<24; h++) {
+    for (let m=0; m<60; m+=30) {
+      const val=pad(h)+':'+pad(m);
+      hs.innerHTML+=`<option value="${val}"${val===S.hourStart?' selected':''}>${val}</option>`;
+      he.innerHTML+=`<option value="${val}"${val===S.hourEnd?' selected':''}>${val}</option>`;
+    }
+  }
+  // Durations
+  $('dur-row').innerHTML = [15,20,30,45,60,90,120].map(d=>
+    `<button class="dur-btn${d===S.slotDur?' active':''}" onclick="setDur(${d})">${d} min</button>`
+  ).join('');
+  renderBreaksList();
+  // Biz info
+  $('biz-input').value = $('biz-name').textContent;
+}
+
+function renderBreaksList() {
+  const list=$('breaks-list');
+  if (!S.breaks.length) { list.innerHTML='<p style="font-size:12px;color:var(--text3);padding:8px 0">Sin descansos configurados</p>'; return; }
+  list.innerHTML = S.breaks.map((b,i)=>
+    `<div class="break-item">
+      <span class="break-time">${b.start} — ${b.end}</span>
+      <span class="break-label">${esc(b.label)}</span>
+      <button class="break-del" onclick="deleteBreak(${i})" aria-label="Eliminar"><i class="ti ti-trash"></i></button>
+    </div>`
+  ).join('');
+}
+
+function toggleDay(i) {
+  if (S.workDays.includes(i)) S.workDays = S.workDays.filter(x=>x!==i);
+  else S.workDays.push(i);
+  renderSettings();
+}
+function setDur(d) { S.slotDur=d; renderSettings(); }
+function addBreak() {
+  const s=$('break-start').value, e=$('break-end').value, l=$('break-label').value||'Descanso';
+  if (!s||!e||s>=e) { alert('La hora de inicio debe ser anterior al fin.'); return; }
+  S.breaks.push({start:s,end:e,label:l});
+  $('break-label').value='';
+  renderBreaksList();
+}
+function deleteBreak(i) { S.breaks.splice(i,1); renderBreaksList(); }
+function saveSettings() {
+  S.hourStart = $('hour-start').value;
+  S.hourEnd   = $('hour-end').value;
+  const name  = $('biz-input').value.trim() || 'Mi Negocio';
+  $('biz-name').textContent = name;
+  renderCal(); renderMiniCal(); renderDayPanel();
+  const btn=$('save-settings-btn');
+  btn.innerHTML='<i class="ti ti-check"></i> ¡Guardado!';
+  setTimeout(()=>{ btn.innerHTML='<i class="ti ti-check"></i> Guardar'; }, 1800);
+}
+
+/* ── Services ── */
+function renderServices() {
+  const list=$('services-list');
+  if (!S.services.length) { list.innerHTML='<p style="font-size:12px;color:var(--text3);padding:8px 0">Sin servicios registrados</p>'; return; }
+  list.innerHTML = S.services.map((s,i)=>
+    `<div class="service-row">
+      <span class="service-name">${esc(s.name)}</span>
+      <span class="service-detail">${s.dur}</span>
+      <span class="service-detail">${esc(s.price)}</span>
+      <button class="break-del" onclick="deleteService(${i})" aria-label="Eliminar"><i class="ti ti-trash"></i></button>
+    </div>`
+  ).join('');
+}
+function saveService() {
+  const name=$('svc-name').value.trim();
+  const dur=parseInt($('svc-dur').value)||30;
+  const price=$('svc-price').value.trim()||'$0';
+  if (!name) { alert('Escribe el nombre del servicio.'); return; }
+  S.services.push({id:Date.now(),name,dur,price});
+  $('svc-name').value=''; $('svc-dur').value=''; $('svc-price').value='';
+  renderServices();
+}
+function deleteService(i) {
+  if (!confirm('¿Eliminar servicio?')) return;
+  S.services.splice(i,1); renderServices();
+}
+
+/* ── Stats ── */
+function updateStats() {
+  const todayKey = fmtKey(S.today);
+  const now=new Date();
+  const ws=new Date(now); ws.setDate(now.getDate()-now.getDay());
+  const we=new Date(ws); we.setDate(ws.getDate()+6);
+  $('st-today').textContent   = S.appointments.filter(a=>a.date===todayKey).length;
+  $('st-week').textContent    = S.appointments.filter(a=>{ const d=parseKey(a.date); return d>=ws&&d<=we; }).length;
+  $('st-month').textContent   = S.appointments.filter(a=>{ const d=parseKey(a.date); return d.getMonth()===S.calDate.getMonth()&&d.getFullYear()===S.calDate.getFullYear(); }).length;
+  $('st-pending').textContent = S.appointments.filter(a=>a.status==='pending').length;
+}
+
+/* ── Nav ── */
+function calNav(dir) {
+  S.calDate.setMonth(S.calDate.getMonth()+dir);
+  S.miniDate = new Date(S.calDate);
+  renderCal(); renderMiniCal();
+}
+function miniNav(dir) { S.miniDate.setMonth(S.miniDate.getMonth()+dir); renderMiniCal(); }
+function goToday() {
+  S.calDate     = new Date(S.today);
+  S.miniDate    = new Date(S.today);
+  S.selectedDay = fmtKey(S.today);
+  renderCal(); renderMiniCal(); renderDayPanel();
+}
+
+/* ── Modal ── */
+function populateServiceSelect() {
+  $('apt-service').innerHTML = S.services.map(s=>`<option value="${esc(s.name)}">${esc(s.name)} (${s.dur}min)</option>`).join('');
+}
+function setStatus(s, el) {
+  S.modalStatus = s;
+  document.querySelectorAll('.status-opt').forEach(x=>x.classList.remove('active'));
+  el.classList.add('active');
+}
+function openNewApt() {
+  S.editingAptId = null;
+  $('modal-title').textContent = 'Nueva cita';
+  $('apt-client').value = ''; $('apt-phone').value='';
+  $('apt-date').value   = S.selectedDay || fmtKey(S.today);
+  $('apt-time').value   = S.hourStart;
+  $('apt-notes').value  = '';
+  $('modal-del-btn').style.display='none';
+  S.modalStatus='confirmed';
+  document.querySelectorAll('.status-opt').forEach(x=>{
+    x.classList.remove('active');
+    if (x.classList.contains('confirmed')) x.classList.add('active');
+  });
+  populateServiceSelect();
+  $('modal').classList.add('open');
+  $('apt-client').focus();
+}
+function openNewAptAt(date,time) {
+  openNewApt();
+  $('apt-date').value=date;
+  $('apt-time').value=time;
+}
+function editApt(id) {
+  const apt=S.appointments.find(a=>a.id===id);
+  if(!apt) return;
+  S.editingAptId=id;
+  $('modal-title').textContent='Editar cita';
+  $('apt-client').value=apt.client;
+  $('apt-phone').value=apt.phone||'';
+  $('apt-date').value=apt.date;
+  $('apt-time').value=apt.time;
+  $('apt-notes').value=apt.notes||'';
+  $('modal-del-btn').style.display='inline-flex';
+  S.modalStatus=apt.status;
+  populateServiceSelect();
+  $('apt-service').value=apt.service;
+  document.querySelectorAll('.status-opt').forEach(x=>{
+    x.classList.remove('active');
+    if (x.classList.contains(apt.status)) x.classList.add('active');
+  });
+  $('modal').classList.add('open');
+}
+function saveApt() {
+  const client=$('apt-client').value.trim();
+  const date=$('apt-date').value;
+  const time=$('apt-time').value;
+  const service=$('apt-service').value;
+  if(!client||!date||!time){alert('Cliente, fecha y hora son obligatorios.');return;}
+  const data={ client, phone:$('apt-phone').value.trim(), date, time, service, notes:$('apt-notes').value.trim(), status:S.modalStatus };
+  if (S.editingAptId) {
+    const idx=S.appointments.findIndex(a=>a.id===S.editingAptId);
+    S.appointments[idx]={...S.appointments[idx],...data};
+  } else {
+    S.appointments.push({id:Date.now(),...data});
+  }
+  closeModal();
+  renderCal(); renderMiniCal(); renderDayPanel();
+  if (S.view==='agenda') renderAgenda();
+}
+function deleteApt() {
+  if (!confirm('¿Eliminar esta cita?')) return;
+  S.appointments=S.appointments.filter(a=>a.id!==S.editingAptId);
+  closeModal(); renderCal(); renderMiniCal(); renderDayPanel();
+  if (S.view==='agenda') renderAgenda();
+}
+function closeModal() { $('modal').classList.remove('open'); }
+function closeModalOutside(e) { if(e.target===$('modal')) closeModal(); }
+
+/* ── Init ── */
+
+/* ===== SEGURIDAD, ROLES, 2FA Y MULTI-AGENDA ===== */
+const KEY='agenda_db_v1', enc=new TextEncoder();
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+let DB=JSON.parse(localStorage.getItem(KEY)||'null')||{users:[],agendas:[],log:[]};
+const save=()=>localStorage.setItem(KEY,JSON.stringify(DB));
+function log(e,u){DB.log.unshift({t:new Date().toLocaleString(),u:u||me()?.user||'-',e});DB.log.length=Math.min(DB.log.length,100);save()}
+const b2h=b=>[...new Uint8Array(b)].map(x=>x.toString(16).padStart(2,'0')).join('');
+const h2b=h=>new Uint8Array(h.match(/../g).map(x=>parseInt(x,16)));
+const rnd=n=>b2h(crypto.getRandomValues(new Uint8Array(n)));
+const sha=async s=>b2h(await crypto.subtle.digest('SHA-256',enc.encode(s)));
+async function hashPw(p,salt){const k=await crypto.subtle.importKey('raw',enc.encode(p),'PBKDF2',false,['deriveBits']);return b2h(await crypto.subtle.deriveBits({name:'PBKDF2',hash:'SHA-256',salt:h2b(salt),iterations:150000},k,256))}
+const eq=(a,b)=>{if(a.length!==b.length)return false;let r=0;for(let i=0;i<a.length;i++)r|=a.charCodeAt(i)^b.charCodeAt(i);return r===0};
+const pwOk=p=>p.length>=10&&/[a-z]/.test(p)&&/[A-Z]/.test(p)&&/\d/.test(p);
+const v=id=>$(id).value.trim();
+const err=m=>{const e=$('a-err');if(e)e.textContent=m};
+
+/* TOTP (RFC 6238) */
+const B32='ABCDEFGHIJKLMNOPQRSTUVWXYZ234567';
+const b32e=u=>{let b='',o='';u.forEach(x=>b+=x.toString(2).padStart(8,'0'));for(let i=0;i<b.length;i+=5)o+=B32[parseInt(b.slice(i,i+5).padEnd(5,'0'),2)];return o};
+const b32d=s=>{let b='';[...s].forEach(c=>b+=B32.indexOf(c).toString(2).padStart(5,'0'));const o=[];for(let i=0;i+8<=b.length;i+=8)o.push(parseInt(b.slice(i,i+8),2));return new Uint8Array(o)};
+async function totp(sec,step){const k=await crypto.subtle.importKey('raw',b32d(sec),{name:'HMAC',hash:'SHA-1'},false,['sign']);const c=new Uint8Array(8);new DataView(c.buffer).setUint32(4,step);const h=new Uint8Array(await crypto.subtle.sign('HMAC',k,c));const o=h[19]&15;return String(((h[o]&127)<<24|h[o+1]<<16|h[o+2]<<8|h[o+3])%1e6).padStart(6,'0')}
+async function checkTotp(sec,code){const t=Math.floor(Date.now()/3e4);for(const d of [-1,0,1])if(await totp(sec,t+d)===code)return true;return false}
+
+/* Sesión (15 min de inactividad) y permisos */
+let sess=JSON.parse(sessionStorage.getItem('sess')||'null'), pend=null, tmp=null;
+function me(){if(!sess||sess.exp<Date.now())return null;return DB.users.find(u=>u.id===sess.uid&&u.active)||null}
+const isAdmin=()=>me()?.role==='admin';
+const ag=id=>DB.agendas.find(a=>a.id===id&&me()&&(a.owner===me().id||isAdmin()));
+const bump=()=>{if(sess&&sess.exp>Date.now()){sess.exp=Date.now()+9e5;sessionStorage.setItem('sess',JSON.stringify(sess))}};
+['click','keydown'].forEach(e=>document.addEventListener(e,bump));
+setInterval(()=>{if(sess&&!me()){alert('Sesión expirada por inactividad.');logout(true)}},3e4);
+function logout(auto){log(auto?'Sesión expirada':'Cierre de sesión',DB.users.find(u=>u.id===sess?.uid)?.user);sessionStorage.removeItem('sess');location.reload()}
+
+/* Pantallas de autenticación */
+function authView(m,msg=''){
+  const f=(i,l,t='text')=>`<label class="form-label">${l}</label><input class="form-input" id="${i}" type="${t}" autocomplete="off" style="margin-bottom:10px">`;
+  const b=(fn,t)=>`<div class="err" id="a-err">${msg}</div><button class="btn btn-primary" style="width:100%;justify-content:center" onclick="${fn}()">${t}</button>`;
+  const first=!DB.users.length;
+  $('auth-card').innerHTML={
+    login:`<h2>Iniciar sesión</h2><p>Agenda de Citas</p>${f('a-user','Usuario')}${f('a-pass','Contraseña','password')}${b('doLogin','Entrar')}<p style="margin-top:12px"><a href="#" onclick="authView('reg');return false">Crear cuenta</a></p>`,
+    reg:`<h2>${first?'Crear administrador inicial':'Crear cuenta'}</h2><p>Contraseña: 10+ caracteres con mayúscula, minúscula y número.</p>${f('a-user','Usuario')}${f('a-name','Nombre')}${f('a-pass','Contraseña','password')}${f('a-pass2','Repetir contraseña','password')}${b('doReg','Registrarme')}${first?'':`<p style="margin-top:12px"><a href="#" onclick="authView('login');return false">Ya tengo cuenta</a></p>`}`,
+    mfa:`<h2>Verificación en dos pasos</h2><p>Ingresa el código de tu app autenticadora o un código de respaldo.</p>${f('a-code','Código')}${b('doMfa','Verificar')}`
+  }[m];
+  const i=$('auth-card').querySelector('input');i&&i.focus();
+}
+async function doReg(){
+  const u=v('a-user').toLowerCase(),n=v('a-name'),p=$('a-pass').value;
+  if(!/^[a-z0-9_.-]{3,20}$/.test(u))return err('Usuario: 3-20 caracteres (a-z, 0-9, . _ -)');
+  if(!n||n.length>40)return err('Nombre requerido (máx. 40 caracteres)');
+  if(!pwOk(p))return err('Contraseña: mínimo 10 caracteres con mayúscula, minúscula y número');
+  if(p!==$('a-pass2').value)return err('Las contraseñas no coinciden');
+  if(DB.users.some(x=>x.user===u))return err('Usuario no disponible');
+  const salt=rnd(16),x={id:rnd(8),user:u,name:n,role:DB.users.length?'usuario':'admin',salt,hash:await hashPw(p,salt),active:true,fails:0,lock:0,totp:null,backup:[]};
+  DB.users.push(x);log('Alta de usuario '+u+' ('+x.role+')',u);start(x);
+}
+async function doLogin(){
+  const u=v('a-user').toLowerCase(),p=$('a-pass').value,x=DB.users.find(z=>z.user===u);
+  if(!x||!x.active){await hashPw(p,rnd(16));return err('Credenciales inválidas')}
+  if(x.lock>Date.now())return err('Cuenta bloqueada. Intenta en '+Math.ceil((x.lock-Date.now())/6e4)+' min.');
+  if(!eq(await hashPw(p,x.salt),x.hash)){
+    x.fails=(x.fails||0)+1;if(x.fails>=5){x.fails=0;x.lock=Date.now()+3e5;log('Bloqueo por intentos fallidos',u)}
+    save();return err('Credenciales inválidas');
+  }
+  if(x.totp?.on){pend=x.id;return authView('mfa')}
+  start(x);
+}
+async function doMfa(){
+  const x=DB.users.find(u=>u.id===pend);if(!x)return authView('login');
+  const c=v('a-code').replace(/\s/g,'');let ok=await checkTotp(x.totp.secret,c);
+  if(!ok){const i=x.backup.indexOf(await sha(c.toLowerCase()));if(i>-1){x.backup.splice(i,1);ok=true;log('Uso de código de respaldo',x.user)}}
+  if(!ok){x.fails=(x.fails||0)+1;if(x.fails>=5){x.fails=0;x.lock=Date.now()+3e5;pend=null;log('Bloqueo por 2FA fallido',x.user);save();return authView('login','Cuenta bloqueada 5 min.')}save();return err('Código incorrecto')}
+  x.fails=0;pend=null;start(x);
+}
+function start(x,resume){
+  if(!resume){x.fails=0;sess={uid:x.id,exp:Date.now()+9e5};bump();log('Inicio de sesión',x.user)}
+  save();$('auth').style.display='none';
+  $('u-name').textContent=x.name;$('u-role').textContent=x.role==='admin'?'Administrador':'Usuario';
+  document.querySelectorAll('.adm').forEach(e=>e.style.display=x.role==='admin'?'':'none');
+  const mine=DB.agendas.filter(a=>a.owner===x.id);
+  loadAgenda((mine[0]||newAgenda('Mi negocio')).id);
+}
+function boot(){
+  $('auth').addEventListener('keydown',e=>{if(e.key==='Enter')$('auth').querySelector('.btn-primary')?.click()});
+  const m=me();if(m)return start(m,true);
+  sess=null;authView(DB.users.length?'login':'reg');
+}
+
+/* Agendas (cada una con su configuración, servicios y citas) */
+function newAgenda(name){
+  const a={id:rnd(6),owner:me().id,name:name.slice(0,40),data:{workDays:[1,2,3,4,5],hourStart:'09:00',hourEnd:'18:00',slotDur:60,breaks:[{start:'13:00',end:'14:00',label:'Comida'}],appointments:[],services:[{id:1,name:'Servicio general',dur:60,price:'$0'}],phone:'',address:''}};
+  DB.agendas.push(a);log('Agenda creada: '+a.name);return a;
+}
+function loadAgenda(id){
+  const a=ag(id);if(!a)return;
+  S.agendaId=id;Object.assign(S,JSON.parse(JSON.stringify(a.data)));
+  S.today=new Date();S.calDate=new Date();S.miniDate=new Date();S.selectedDay=fmtKey(S.today);
+  $('biz-name').textContent=a.name;$('biz-phone').value=a.data.phone||'';$('biz-address').value=a.data.address||'';
+  renderSel(id);switchView('cal');
+}
+function renderSel(id){const m=me();$('ag-sel').innerHTML=DB.agendas.filter(a=>a.owner===m.id||(isAdmin()&&a.id===id)).map(a=>`<option value="${a.id}"${a.id===id?' selected':''}>${esc(a.name)}</option>`).join('')}
+function persist(){
+  const a=ag(S.agendaId);if(!a)return;
+  a.name=$('biz-name').textContent.slice(0,40);
+  a.data={workDays:S.workDays,hourStart:S.hourStart,hourEnd:S.hourEnd,slotDur:S.slotDur,breaks:S.breaks,appointments:S.appointments,services:S.services,phone:$('biz-phone').value.trim(),address:$('biz-address').value.trim()};
+  save();renderSel(a.id);
+}
+['saveApt','deleteApt','saveSettings','saveService','deleteService','addBreak','deleteBreak','setDur','toggleDay'].forEach(n=>{
+  const f=window[n];window[n]=function(){if(!me()){logout(true);return}const r=f.apply(this,arguments);persist();return r};
+});
+
+/* Panel genérico y gestión de agendas */
+function gm(t,h){$('gm-t').textContent=t;$('gm-b').innerHTML=h;$('gm').classList.add('open')}
+const gmClose=()=>$('gm').classList.remove('open');
+function openAgendas(){
+  const m=me(),L=DB.agendas.filter(a=>a.owner===m.id||isAdmin());
+  gm('Mis agendas',`<table class="tbl">${L.map(a=>{const o=DB.users.find(u=>u.id===a.owner);return `<tr><td>${esc(a.name)}${a.owner!==m.id?` <small>(${esc(o?.user)})</small>`:''}</td><td style="text-align:right"><button class="btn" onclick="loadAgenda('${a.id}');gmClose()">Abrir</button> <button class="btn" onclick="renAgenda('${a.id}')">Renombrar</button> <button class="btn btn-danger" onclick="delAgenda('${a.id}')">Eliminar</button></td></tr>`}).join('')}</table>
+  <div class="form-row" style="margin-top:14px"><input class="form-input" id="n-ag" maxlength="40" placeholder="Nombre del nuevo negocio"><button class="btn btn-primary" onclick="addAgenda()">Crear agenda</button></div>`);
+}
+function addAgenda(){const n=v('n-ag');if(!n)return;const a=newAgenda(n);save();loadAgenda(a.id);openAgendas()}
+function renAgenda(id){
+  const a=ag(id),n=a&&prompt('Nuevo nombre',a.name);if(!n||!n.trim())return;
+  a.name=n.trim().slice(0,40);log('Agenda renombrada: '+a.name);save();
+  if(id===S.agendaId)$('biz-name').textContent=a.name;renderSel(S.agendaId);openAgendas();
+}
+function delAgenda(id){
+  const a=ag(id);if(!a||!confirm('¿Eliminar la agenda "'+a.name+'" y todas sus citas? No se puede deshacer.'))return;
+  DB.agendas=DB.agendas.filter(x=>x.id!==id);log('Agenda eliminada: '+a.name);save();
+  if(id===S.agendaId)loadAgenda((DB.agendas.find(x=>x.owner===me().id)||newAgenda('Mi negocio')).id);else renderSel(S.agendaId);
+  openAgendas();
+}
+
+/* Seguridad de la cuenta: 2FA y contraseña */
+function openSec(){
+  const m=me();
+  gm('Seguridad de la cuenta',`<h4>Verificación en dos pasos: ${m.totp?'<span style="color:var(--teal)">activada</span>':'desactivada'}</h4>`+
+  (m.totp?`<div class="form-row" style="margin:10px 0"><input class="form-input" id="s-pw" type="password" placeholder="Contraseña actual"><button class="btn btn-danger" onclick="off2fa()">Desactivar 2FA</button></div>`
+  :`<p style="margin:8px 0;font-size:12px">Usa Google Authenticator, Authy, Microsoft Authenticator o similar.</p><button class="btn btn-primary" onclick="setup2fa()">Activar 2FA</button><div id="s-2fa"></div>`)+
+  `<h4 style="margin-top:18px">Cambiar contraseña</h4><div class="form-group"><input class="form-input" id="p-old" type="password" placeholder="Contraseña actual"></div><div class="form-row"><input class="form-input" id="p-new" type="password" placeholder="Nueva (10+, Aa1)"><button class="btn btn-primary" onclick="chPw()">Cambiar</button></div><div class="err" id="s-err"></div>`);
+}
+function setup2fa(){
+  tmp=b32e(crypto.getRandomValues(new Uint8Array(20)));
+  const u='otpauth://totp/AgendaCitas:'+encodeURIComponent(me().user)+'?secret='+tmp+'&issuer=AgendaCitas';
+  $('s-2fa').innerHTML=`<p style="margin:10px 0;font-size:12px">Escanea el QR o ingresa la clave manualmente:<br><code>${tmp}</code></p><div id="qr"></div><div class="form-row" style="margin-top:10px"><input class="form-input" id="s-code" maxlength="6" placeholder="Código de 6 dígitos"><button class="btn btn-primary" onclick="conf2fa()">Verificar y activar</button></div>`;
+  if(window.QRCode)new QRCode($('qr'),{text:u,width:150,height:150});
+}
+async function conf2fa(){
+  if(!await checkTotp(tmp,v('s-code')))return $('s-err').textContent='Código incorrecto';
+  const m=me(),codes=Array.from({length:8},()=>rnd(4));
+  m.totp={secret:tmp,on:true};m.backup=await Promise.all(codes.map(sha));tmp=null;log('2FA activada');save();
+  gm('2FA activada',`<p>Guarda estos códigos de respaldo (un solo uso). No se mostrarán de nuevo:</p><pre style="margin:10px 0;font-size:14px">${codes.join('\n')}</pre><button class="btn btn-primary" onclick="gmClose()">Listo</button>`);
+}
+async function off2fa(){const m=me();if(!eq(await hashPw($('s-pw').value,m.salt),m.hash))return $('s-err').textContent='Contraseña incorrecta';m.totp=null;m.backup=[];log('2FA desactivada');save();openSec()}
+async function chPw(){
+  const m=me(),n=$('p-new').value;
+  if(!eq(await hashPw($('p-old').value,m.salt),m.hash))return $('s-err').textContent='Contraseña actual incorrecta';
+  if(!pwOk(n))return $('s-err').textContent='La nueva contraseña no cumple la política';
+  m.salt=rnd(16);m.hash=await hashPw(n,m.salt);log('Cambio de contraseña');save();gm('Listo','<p>Contraseña actualizada.</p>');
+}
+
+/* Administración de usuarios (solo rol admin) */
+function openUsers(){
+  if(!isAdmin())return;
+  gm('Usuarios y bitácora',`<table class="tbl"><tr><th>Usuario</th><th>Rol</th><th>2FA</th><th>Activo</th><th></th></tr>${DB.users.map(u=>`<tr><td>${esc(u.user)}<br><small>${esc(u.name)}</small></td><td><select class="form-input" onchange="uSet('${u.id}','role',this.value)"><option value="usuario"${u.role==='usuario'?' selected':''}>Usuario</option><option value="admin"${u.role==='admin'?' selected':''}>Admin</option></select></td><td>${u.totp?`Sí <button class="icon-btn" title="Restablecer 2FA" onclick="uSet('${u.id}','2fa')"><i class="ti ti-refresh"></i></button>`:'No'}</td><td><input type="checkbox" ${u.active?'checked':''} onchange="uSet('${u.id}','active',this.checked)"></td><td><button class="icon-btn" onclick="uDel('${u.id}')"><i class="ti ti-trash"></i></button></td></tr>`).join('')}</table>
+  <h4 style="margin:16px 0 6px">Bitácora reciente</h4><div style="max-height:150px;overflow:auto;font-size:11px">${DB.log.slice(0,25).map(l=>`${esc(l.t)} · <b>${esc(l.u)}</b> · ${esc(l.e)}`).join('<br>')}</div>`);
+}
+function uSet(id,k,val){
+  const u=DB.users.find(x=>x.id===id);if(!isAdmin()||!u)return;
+  const admins=DB.users.filter(x=>x.role==='admin'&&x.active).length;
+  if(u.role==='admin'&&u.active&&admins<2&&((k==='role'&&val!=='admin')||(k==='active'&&!val))){alert('Debe existir al menos un administrador activo.');return openUsers()}
+  if(k==='2fa'){u.totp=null;u.backup=[]}else u[k]=val;
+  log('Admin modificó a '+u.user+': '+k);save();openUsers();
+}
+function uDel(id){
+  const u=DB.users.find(x=>x.id===id);
+  if(!isAdmin()||!u||u.id===me().id)return alert('No puedes eliminar tu propia cuenta.');
+  if(!confirm('¿Eliminar a '+u.user+' y todas sus agendas?'))return;
+  DB.users=DB.users.filter(x=>x.id!==id);DB.agendas=DB.agendas.filter(a=>a.owner!==id);log('Usuario eliminado: '+u.user);save();openUsers();
+}
+
+boot();
+
+</script>
+</body>
+</html>

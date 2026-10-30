@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Informe de pruebas - Sistemas de seguridad</title>
+<style>
+:root{font-family:Arial,Helvetica,sans-serif;color:#202124;background:#fff;font-size:10pt;line-height:1.42}*{box-sizing:border-box}body{max-width:980px;margin:24px auto;padding:0 24px}h1{font-size:23pt;margin:0 0 8px}h2{font-size:15pt;margin:26px 0 8px;border-bottom:2px solid #444;padding-bottom:4px}h3{font-size:11pt;margin:18px 0 6px}.subtitle{font-size:12pt;color:#454545;margin:0 0 20px}.meta,.data{width:100%;border-collapse:collapse;margin:8px 0 16px}.meta th,.meta td,.data th,.data td{border:1px solid #777;padding:7px;vertical-align:top;text-align:left}.meta th,.data th{background:#dedede}.meta td.fill{background:#f5c99f}.meta th{width:23%}.data{font-size:9pt}.data th{font-weight:700}.summary td:first-child{width:40%}.notice{border-left:4px solid #b65b13;background:#fff4e8;padding:10px 12px;margin:12px 0}.muted{color:#555}.status{font-weight:bold}.pass{color:#17643a}.pending{color:#8a4d00}.risk{color:#8a241b}.sign{height:34px}.footer{margin-top:24px;font-size:8.5pt;color:#555;border-top:1px solid #aaa;padding-top:8px}ul{margin:4px 0 10px;padding-left:20px}li{margin:3px 0}@media print{body{max-width:none;margin:0;padding:12mm}h2{break-after:avoid}.data tr{break-inside:avoid}.page-break{break-before:page}.footer{position:static}@page{size:A4;margin:12mm}}
+</style>
+</head>
+<body>
+<header>
+<p><strong>Proyecto:</strong> Sistema de Agenda de Citas</p>
+<h1>Informe de revisión y pruebas</h1>
+<p class="subtitle">Sistemas de seguridad del programa</p>
+<table class="meta">
+<tr><th>Fecha de revisión</th><td class="fill">30/10/2026</td><th>Esfuerzo</th><td>Inspección estática y comprobación sintáctica</td></tr>
+<tr><th>Método de revisión</th><td>Lectura de código y recorrido de controles</td><th>Identificador</th><td>scrm_SEGURIDAD_2026-10-30</td></tr>
+<tr><th>Participantes / roles</th><td colspan="3">Autor: no especificado · Revisor: no especificado · Moderador: no especificado</td></tr>
+</table>
+</header>
+<section>
+<h2>Alcance de la revisión</h2>
+<table class="meta"><tr><th>Alcance</th><td class="fill">Revisión del sistema de seguridad implementado en la aplicación</td></tr>
+<tr><th>Partes revisadas</th><td>Hash de contraseñas; autenticación y bloqueo por intentos; TOTP y códigos de respaldo; códigos de un solo uso; sesiones y permisos; almacenamiento local y bitácora.</td></tr>
+<tr><th>Exclusiones</th><td>No se ejecutó una prueba de penetración, revisión de navegador en ejecución, análisis de dependencias ni pruebas contra un servidor. El proyecto no implementa backend.</td></tr></table>
+</section>
+<section>
+<h2>Objetos de revisión</h2>
+<table class="data"><thead><tr><th>Documento / módulo</th><th>Versión anterior</th><th>Versión revisada</th><th>Comentarios implementados</th></tr></thead><tbody>
+<tr><td>js/core/crypto.js, totp.js, otc.js</td><td>No indicado</td><td>Estado del proyecto al 30/10/2026</td><td>No aplica; revisión actual</td></tr>
+<tr><td>js/auth/login.js, session.js, recovery.js</td><td>No indicado</td><td>Estado del proyecto al 30/10/2026</td><td>No aplica; revisión actual</td></tr>
+<tr><td>js/core/storage.js y README.md</td><td>No indicado</td><td>Estado del proyecto al 30/10/2026</td><td>No aplica; revisión actual</td></tr>
+</tbody></table>
+<h3>Documentos de apoyo</h3>
+<table class="data"><thead><tr><th>Documento</th><th>Versión / fecha</th></tr></thead><tbody>
+<tr><td>README.md: límites de seguridad y almacenamiento</td><td>Estado del proyecto al 30/10/2026</td></tr>
+<tr><td>Archivos JavaScript de autenticación y núcleo</td><td>Estado del proyecto al 30/10/2026</td></tr>
+</tbody></table>
+</section>
+<section>
+<h2>Resumen de resultados</h2>
+<table class="meta summary"><tbody>
+<tr><th>Revisión finalizada</th><td>Parcial: revisión estática; faltan pruebas dinámicas</td></tr>
+<tr><th>Fecha de seguimiento</th><td>Pendiente de definir</td></tr>
+<tr><th>Errores / riesgos abiertos</th><td class="risk">3 riesgos de diseño abiertos</td></tr>
+<tr><th>Observaciones abiertas</th><td>2 recomendaciones</td></tr>
+<tr><th>Errores sintácticos JavaScript</th><td class="pass">0 detectados por node --check</td></tr>
+<tr><th>Pruebas funcionales automatizadas</th><td>No disponibles en el repositorio ni ejecutadas</td></tr>
+</tbody></table>
+<div class="notice"><strong>Conclusión:</strong> se inspeccionaron los controles presentes y la sintaxis de los archivos JavaScript. Los resultados funcionales indicados abajo son verificaciones de código, no una certificación de ejecución. La aplicación es local y de demostración; no debe considerarse un sistema de autenticación de producción.</div>
+</section>
+<section>
+<h2>Pruebas y verificaciones</h2>
+<table class="data"><thead><tr><th>No.</th><th>Referencia</th><th>Prueba / criterio y resultado observado</th><th>Estado</th><th>Clasificación</th></tr></thead><tbody>
+<tr><td>1</td><td>crypto.js</td><td>Inspección del almacenamiento de contraseñas: PBKDF2 con SHA-256, sal aleatoria por contraseña y 150 000 iteraciones.</td><td class="pass">Verificado en código; no se ejecutó prueba de inicio de sesión</td><td>I</td></tr>
+<tr><td>2</td><td>login.js</td><td>Inspección de intentos fallidos: se contabilizan y se bloquea la cuenta tras 5 fallos durante 5 minutos.</td><td class="pass">Verificado en código; no se probó en navegador</td><td>I</td></tr>
+<tr><td>3</td><td>totp.js / login.js</td><td>Inspección de 2FA: TOTP con ventana de un paso anterior o posterior y códigos de respaldo de un solo uso almacenados como hashes.</td><td class="pass">Verificado en código</td><td>I</td></tr>
+<tr><td>4</td><td>otc.js</td><td>Inspección de códigos temporales: 6 dígitos, vigencia de 10 minutos, máximo 5 intentos y enfriamiento de 60 segundos entre envíos.</td><td class="pass">Verificado en código</td><td>I</td></tr>
+<tr><td>5</td><td>session.js</td><td>Inspección de sesión: expiración por inactividad configurable; se comprueba periódicamente y se elimina la sesión al salir.</td><td class="pass">Verificado en código; no se simuló la expiración</td><td>I</td></tr>
+<tr><td>6</td><td>Todos los .js</td><td>Comprobación de sintaxis con Node.js: <code>node --check</code> sobre los archivos JavaScript del proyecto.</td><td class="pass">Aprobada; sin errores de sintaxis</td><td>I</td></tr>
+<tr><td>7</td><td>storage.js / README.md</td><td>Evaluación del límite del modelo: DB, permisos, hashes y estado se guardan en localStorage y el código se ejecuta en el navegador.</td><td class="risk">Riesgo confirmado por inspección; no hay integridad ni autorización de servidor</td><td>E</td></tr>
+<tr><td>8</td><td>Prueba dinámica</td><td>Manipulación del almacenamiento, bypass de controles, XSS, CSRF y pruebas de fuerza bruta desde navegador.</td><td class="pending">Pendiente; fuera de la validación realizada</td><td>R</td></tr>
+</tbody></table>
+</section>
+<section class="page-break">
+<h2>Análisis de riesgos y comentarios</h2>
+<table class="data"><thead><tr><th>No.</th><th>Referencia</th><th>Hallazgo / acción recomendada</th><th>Clase</th><th>Responsable</th><th>Estado</th></tr></thead><tbody>
+<tr><td>1</td><td>storage.js, session.js</td><td><strong>Riesgo alto:</strong> autenticación, permisos y datos son controlables desde el cliente y localStorage/sessionStorage. Para producción, trasladar identidad, autorización, estado de sesión y datos sensibles a un backend confiable; validar permisos en cada operación.</td><td class="risk">E</td><td>Equipo de desarrollo</td><td>Abierto</td></tr>
+<tr><td>2</td><td>login.js, auth-screens.js</td><td><strong>Riesgo:</strong> el primer registro se convierte en administrador. En un entorno compartido o desplegado sin inicialización controlada, no hay autoridad externa que proteja la creación del administrador inicial.</td><td class="risk">E</td><td>Equipo de desarrollo</td><td>Abierto</td></tr>
+<tr><td>3</td><td>login.js, otc.js</td><td><strong>Riesgo:</strong> contadores, bloqueos y límites de códigos residen en el navegador; pueden reiniciarse o alterarse por quien controla el almacenamiento. Aplicar limitación de tasa y bloqueo en servidor antes de uso real.</td><td class="risk">E</td><td>Equipo de desarrollo</td><td>Abierto</td></tr>
+<tr><td>4</td><td>crypto.js</td><td>Conservar el uso de sal aleatoria y derivación PBKDF2; evaluar los parámetros de costo en dispositivos soportados y establecer migración de hashes al actualizar parámetros.</td><td>R</td><td>Equipo de desarrollo</td><td>Recomendación</td></tr>
+<tr><td>5</td><td>README.md</td><td>El README ya advierte que localStorage puede leerse o modificarse y que hace falta backend/base de datos para producción. Mantener esta advertencia visible en cualquier distribución.</td><td>R</td><td>Equipo de desarrollo</td><td>Observado</td></tr>
+</tbody></table>
+<h3>Recorrido de código / inspección</h3>
+<table class="data"><thead><tr><th>No.</th><th>Referencia</th><th>Resultado</th><th>Clase</th></tr></thead><tbody>
+<tr><td>1</td><td>crypto.js, totp.js, otc.js</td><td>Primitivas criptográficas y reglas temporales identificables en código; ninguna prueba unitaria específica disponible.</td><td>I</td></tr>
+<tr><td>2</td><td>login.js, recovery.js</td><td>Flujos de autenticación, 2FA y recuperación comparten la verificación de segundo factor.</td><td>I</td></tr>
+<tr><td>3</td><td>storage.js, README.md</td><td>El límite de seguridad principal es arquitectónico: el cliente controla el estado y la lógica.</td><td>E</td></tr>
+</tbody></table>
+<h3>Acciones de seguimiento</h3>
+<table class="data"><thead><tr><th>Acción</th><th>Responsable</th><th>Fecha prevista</th><th>Fecha completada</th></tr></thead><tbody>
+<tr><td>Definir si el producto seguirá siendo demostración local o migrará a backend antes de producción.</td><td>Por asignar</td><td>Por definir</td><td>—</td></tr>
+<tr><td>Agregar pruebas automatizadas de login, bloqueo, TOTP, expiración y recuperación.</td><td>Por asignar</td><td>Por definir</td><td>—</td></tr>
+<tr><td>Ejecutar revisión dinámica y de seguridad después de incorporar backend.</td><td>Por asignar</td><td>Por definir</td><td>—</td></tr>
+</tbody></table>
+</section>
+<p class="footer">Documento generado a partir de inspección estática del estado del proyecto indicado. “Verificado en código” no equivale a una prueba funcional ni a una certificación de seguridad.</p>
+</body>
+</html>

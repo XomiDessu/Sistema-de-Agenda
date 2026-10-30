@@ -1,0 +1,5 @@
+/* Pantalla de inicio de sesión */
+#auth{position:fixed;inset:0;z-index:2000;background:var(--bg);display:flex;align-items:center;justify-content:center}
+.auth-card{background:var(--surface);border:.5px solid var(--border2);border-radius:var(--radius-lg);padding:26px;width:360px;max-width:92vw}
+.auth-card h2{font-size:17px;margin-bottom:4px}.auth-card p{font-size:12px;color:var(--text2);margin-bottom:14px}
+.auth-card a{color:var(--teal)}

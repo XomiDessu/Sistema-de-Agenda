@@ -1,0 +1,17 @@
+/* Vista Servicios */
+/* services */
+.service-grid-header {
+  display: grid; grid-template-columns: 1fr 70px 90px 36px;
+  gap: 8px; padding-bottom: 6px;
+  border-bottom: 0.5px solid var(--border);
+  margin-bottom: 6px;
+}
+.service-grid-header span { font-size: 10px; color: var(--text3); font-weight: 600; text-transform: uppercase; letter-spacing: .06em; }
+.service-row {
+  display: grid; grid-template-columns: 1fr 70px 90px 36px;
+  gap: 8px; align-items: center; padding: 8px 0;
+  border-bottom: 0.5px solid var(--border);
+}
+.service-row:last-child { border-bottom: none; }
+.service-name   { font-size: 12px; font-weight: 600; }
+.service-detail { font-size: 11px; color: var(--text2); text-align: center; }

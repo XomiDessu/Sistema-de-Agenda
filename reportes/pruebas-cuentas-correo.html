@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Informe de pruebas - Cuentas y correo</title>
+<style>
+:root{font-family:Arial,Helvetica,sans-serif;color:#202124;background:#fff;font-size:10pt;line-height:1.42}*{box-sizing:border-box}body{max-width:980px;margin:24px auto;padding:0 24px}h1{font-size:23pt;margin:0 0 8px}h2{font-size:15pt;margin:26px 0 8px;border-bottom:2px solid #444;padding-bottom:4px}h3{font-size:11pt;margin:18px 0 6px}.subtitle{font-size:12pt;color:#454545;margin:0 0 20px}.meta,.data{width:100%;border-collapse:collapse;margin:8px 0 16px}.meta th,.meta td,.data th,.data td{border:1px solid #777;padding:7px;vertical-align:top;text-align:left}.meta th,.data th{background:#dedede}.meta td.fill{background:#f5c99f}.meta th{width:23%}.data{font-size:9pt}.data th{font-weight:700}.summary td:first-child{width:40%}.notice{border-left:4px solid #b65b13;background:#fff4e8;padding:10px 12px;margin:12px 0}.muted{color:#555}.status{font-weight:bold}.pass{color:#17643a}.pending{color:#8a4d00}.risk{color:#8a241b}.sign{height:34px}.footer{margin-top:24px;font-size:8.5pt;color:#555;border-top:1px solid #aaa;padding-top:8px}ul{margin:4px 0 10px;padding-left:20px}li{margin:3px 0}@media print{body{max-width:none;margin:0;padding:12mm}h2{break-after:avoid}.data tr{break-inside:avoid}.page-break{break-before:page}.footer{position:static}@page{size:A4;margin:12mm}}
+</style>
+</head>
+<body>
+<header>
+<p><strong>Proyecto:</strong> Sistema de Agenda de Citas</p>
+<h1>Informe de revisión y pruebas</h1>
+<p class="subtitle">Gestión de cuentas, control de usuarios, recuperación y correo Gmail</p>
+<table class="meta">
+<tr><th>Fecha de revisión</th><td class="fill">30/10/2026</td><th>Esfuerzo</th><td>Inspección estática y comprobación sintáctica</td></tr>
+<tr><th>Método de revisión</th><td>Lectura de código y recorrido de flujos</td><th>Identificador</th><td>scrm_CUENTAS_CORREO_2026-10-30</td></tr>
+<tr><th>Participantes / roles</th><td colspan="3">Autor: no especificado · Revisor: no especificado · Moderador: no especificado</td></tr>
+</table>
+</header>
+<section>
+<h2>Alcance de la revisión</h2>
+<table class="meta"><tr><th>Alcance</th><td class="fill">Cuentas, administración de usuarios, recuperación y correo saliente configurado con EmailJS</td></tr>
+<tr><th>Partes revisadas</th><td>Registro y perfil; roles y estado de usuarios; bitácora y administración; verificación de correo; recuperación por correo y códigos de respaldo; configuración y prueba de envío EmailJS, incluido el uso de Gmail como proveedor externo.</td></tr>
+<tr><th>Exclusiones</th><td>No se dispuso de cuenta/configuración EmailJS, plantilla, acceso a Gmail ni credenciales de prueba. No se verificó la entrega a una bandeja real ni se ejecutaron pruebas manuales en navegador.</td></tr></table>
+</section>
+<section>
+<h2>Objetos de revisión</h2>
+<table class="data"><thead><tr><th>Documento / módulo</th><th>Versión anterior</th><th>Versión revisada</th><th>Comentarios implementados</th></tr></thead><tbody>
+<tr><td>js/auth/login.js, js/auth/recovery.js</td><td>No indicado</td><td>Estado del proyecto al 30/10/2026</td><td>No aplica; revisión actual</td></tr>
+<tr><td>js/admin/users.js, js/account/*</td><td>No indicado</td><td>Estado del proyecto al 30/10/2026</td><td>No aplica; revisión actual</td></tr>
+<tr><td>js/mail/mail.js, js/account/tab-mailservice.js</td><td>No indicado</td><td>Estado del proyecto al 30/10/2026</td><td>No aplica; revisión actual</td></tr>
+</tbody></table>
+<h3>Documentos de apoyo</h3>
+<table class="data"><thead><tr><th>Documento</th><th>Versión / fecha</th></tr></thead><tbody>
+<tr><td>README.md: cuenta, EmailJS y limitaciones locales</td><td>Estado del proyecto al 30/10/2026</td></tr>
+<tr><td>Archivos JavaScript de autenticación, cuenta, administración y correo</td><td>Estado del proyecto al 30/10/2026</td></tr>
+</tbody></table>
+</section>
+<section>
+<h2>Resumen de resultados</h2>
+<table class="meta summary"><tbody>
+<tr><th>Revisión finalizada</th><td>Parcial: inspección estática; integración Gmail pendiente</td></tr>
+<tr><th>Fecha de seguimiento</th><td>Pendiente de definir</td></tr>
+<tr><th>Errores / riesgos abiertos</th><td class="risk">2 riesgos de diseño abiertos</td></tr>
+<tr><th>Observaciones / pruebas pendientes</th><td>3 recomendaciones o verificaciones pendientes</td></tr>
+<tr><th>Errores sintácticos JavaScript</th><td class="pass">0 detectados por node --check</td></tr>
+<tr><th>Pruebas funcionales automatizadas</th><td>No disponibles en el repositorio ni ejecutadas</td></tr>
+</tbody></table>
+<div class="notice"><strong>Nota sobre Gmail:</strong> la aplicación no implementa conexión OAuth ni Gmail API de forma directa. El envío real se realiza mediante EmailJS desde el navegador; Gmail puede configurarse como servicio dentro de EmailJS. La conexión y entrega reales quedan sin confirmar hasta aportar una configuración válida y probar el correo.</div>
+</section>
+<section>
+<h2>Pruebas y verificaciones</h2>
+<table class="data"><thead><tr><th>No.</th><th>Referencia</th><th>Prueba / criterio y resultado observado</th><th>Estado</th><th>Clasificación</th></tr></thead><tbody>
+<tr><td>1</td><td>login.js</td><td>Inspección de registro: valida formato de usuario/correo y contraseña, evita nombres de usuario duplicados; la primera cuenta recibe rol administrador y las siguientes rol usuario.</td><td class="pass">Verificado en código; no ejecutado en navegador</td><td>I</td></tr>
+<tr><td>2</td><td>admin/users.js</td><td>Inspección de acciones de administración: cambiar rol/estado, restablecer 2FA, eliminar usuario y agendas; impide eliminar la propia cuenta y dejar sin administrador activo.</td><td class="pass">Verificado en código; no ejecutado en navegador</td><td>I</td></tr>
+<tr><td>3</td><td>account/tab-profile.js</td><td>Inspección de actualización de perfil: nombre requerido, máximo 40 caracteres; usuario y rol se muestran como no editables.</td><td class="pass">Verificado en código</td><td>I</td></tr>
+<tr><td>4</td><td>account/tab-email.js, otc.js</td><td>Inspección de correo: código de seis dígitos; vigencia de 10 minutos, máximo 5 intentos, enfriamiento de 60 segundos y rechazo de direcciones ya verificadas en otra cuenta.</td><td class="pass">Verificado en código</td><td>I</td></tr>
+<tr><td>5</td><td>auth/recovery.js</td><td>Inspección de recuperación: respuesta genérica para no revelar si existe usuario/correo; correo verificado, política de contraseña y segundo factor cuando está activo.</td><td class="pass">Verificado en código; envío real no comprobado</td><td>I</td></tr>
+<tr><td>6</td><td>account/tab-recovery.js</td><td>Inspección de códigos de respaldo: genera ocho códigos, almacena hashes y consume un código al restablecer la contraseña.</td><td class="pass">Verificado en código</td><td>I</td></tr>
+<tr><td>7</td><td>account/tab-mailservice.js</td><td>Inspección de configuración EmailJS: requiere Service ID, Template ID y Public Key; la prueba requiere correo verificado y usa la configuración guardada.</td><td class="pass">Flujo verificado en código; prueba de integración pendiente</td><td>I</td></tr>
+<tr><td>8</td><td>mail/mail.js</td><td>Conectar un servicio Gmail en EmailJS, enviar prueba, confirmar recepción y validar plantilla/to_email, subject y message.</td><td class="pending">Pendiente: faltan credenciales, servicio y bandeja Gmail de prueba</td><td>R</td></tr>
+<tr><td>9</td><td>Todos los .js</td><td>Comprobación de sintaxis con Node.js mediante <code>node --check</code>.</td><td class="pass">Aprobada; sin errores de sintaxis</td><td>I</td></tr>
+</tbody></table>
+</section>
+<section class="page-break">
+<h2>Análisis de riesgos y comentarios</h2>
+<table class="data"><thead><tr><th>No.</th><th>Referencia</th><th>Hallazgo / acción recomendada</th><th>Clase</th><th>Responsable</th><th>Estado</th></tr></thead><tbody>
+<tr><td>1</td><td>admin/users.js, session.js, storage.js</td><td><strong>Riesgo alto:</strong> las cuentas, roles, estado y permisos residen en almacenamiento del navegador. La verificación de administrador es lógica cliente; no proporciona control fiable ante usuarios que puedan modificar el almacenamiento. Para producción, aplicar autorización en servidor.</td><td class="risk">E</td><td>Equipo de desarrollo</td><td>Abierto</td></tr>
+<tr><td>2</td><td>auth/login.js</td><td><strong>Riesgo:</strong> quien pueda registrar primero obtiene rol administrador. En una aplicación distribuida sin backend/control de aprovisionamiento no existe un alta inicial protegida.</td><td class="risk">E</td><td>Equipo de desarrollo</td><td>Abierto</td></tr>
+<tr><td>3</td><td>account/tab-mailservice.js, mail.js</td><td>La Public Key de EmailJS se expone en el cliente por diseño. Restringir origen/dominios permitidos, cuotas y plantillas desde EmailJS; no introducir secretos privados del proveedor en el frontend.</td><td>R</td><td>Administrador del servicio</td><td>Recomendación</td></tr>
+<tr><td>4</td><td>mail.js, configuración EmailJS</td><td>La aplicación admite EmailJS, no una integración directa con Gmail. Registrar el resultado como no probado hasta completar un envío real desde una cuenta Gmail configurada como servicio EmailJS.</td><td>R</td><td>Equipo de pruebas</td><td>Pendiente</td></tr>
+<tr><td>5</td><td>README.md</td><td>El modo de demostración guarda los mensajes en una bandeja local visible desde el navegador; no representa entrega real. Mantener clara esta diferencia en pruebas y operación.</td><td>R</td><td>Equipo de desarrollo</td><td>Observado</td></tr>
+</tbody></table>
+<h3>Recorrido de código / inspección</h3>
+<table class="data"><thead><tr><th>No.</th><th>Referencia</th><th>Resultado</th><th>Clase</th></tr></thead><tbody>
+<tr><td>1</td><td>admin/users.js</td><td>Controles de interfaz para roles, activación, eliminación y bitácora; protecciones locales observadas para el último admin y autoeliminación.</td><td>I</td></tr>
+<tr><td>2</td><td>account/tab-email.js, auth/recovery.js</td><td>Flujos de verificación y recuperación condicionados a correo verificado y opciones de cuenta.</td><td>I</td></tr>
+<tr><td>3</td><td>account/tab-mailservice.js, mail.js</td><td>Selección demo/EmailJS y endpoint EmailJS identificados; Gmail real depende de configuración externa.</td><td>I</td></tr>
+</tbody></table>
+<h3>Acciones de seguimiento</h3>
+<table class="data"><thead><tr><th>Acción</th><th>Responsable</th><th>Fecha prevista</th><th>Fecha completada</th></tr></thead><tbody>
+<tr><td>Ejecutar escenarios de alta, cambio de rol, desactivación, eliminación y protección del último administrador.</td><td>Por asignar</td><td>Por definir</td><td>—</td></tr>
+<tr><td>Probar recuperación con correo verificado, expiración, intentos agotados, código de respaldo y 2FA.</td><td>Por asignar</td><td>Por definir</td><td>—</td></tr>
+<tr><td>Configurar EmailJS con Gmail, revisar restricciones y confirmar envío/recepción y plantilla.</td><td>Por asignar</td><td>Por definir</td><td>—</td></tr>
+<tr><td>Agregar pruebas automatizadas para los flujos anteriores y registrar resultados reproducibles.</td><td>Por asignar</td><td>Por definir</td><td>—</td></tr>
+</tbody></table>
+</section>
+<p class="footer">Documento generado a partir de inspección estática del estado del proyecto indicado. Las integraciones externas y los flujos descritos como pendientes requieren ejecución con cuentas de prueba.</p>
+</body>
+</html>

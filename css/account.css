@@ -1,0 +1,40 @@
+/* Vista Mi cuenta y bandeja de correo de demostración */
+.tabs {
+  display: flex; gap: 2px; padding: 0 18px;
+  background: var(--surface); border-bottom: 0.5px solid var(--border);
+  overflow-x: auto;
+}
+.tab {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 10px 12px; border: none; background: none;
+  border-bottom: 2px solid transparent;
+  font: inherit; font-size: 12px; color: var(--text2);
+  cursor: pointer; white-space: nowrap;
+}
+.tab:hover { color: var(--text); }
+.tab i { font-size: 16px; }
+.tab.active { color: var(--teal-dark); border-bottom-color: var(--teal); font-weight: 600; }
+
+.ac-wrap { max-width: 640px; }
+.hint { font-size: 12px; color: var(--text2); margin-bottom: 12px; }
+.btn-row { display: flex; gap: 8px; flex-wrap: wrap; }
+.check-row { display: flex; gap: 10px; align-items: flex-start; font-size: 13px; cursor: pointer; }
+.check-row input { margin-top: 3px; }
+.verify-box { margin-top: 14px; padding-top: 14px; border-top: 0.5px solid var(--border); }
+
+.pill { display: inline-block; font-size: 10px; font-weight: 600; padding: 2px 8px; border-radius: 10px; margin-left: 6px; }
+.pill-ok   { background: var(--teal-light);  color: var(--teal-dark); }
+.pill-warn { background: var(--amber-light); color: var(--amber); }
+.pill-off  { background: var(--surface2);    color: var(--text3); }
+
+.codes { margin: 10px 0; padding: 10px 12px; font-size: 14px; background: var(--surface2); border-radius: var(--radius); }
+code { font-family: ui-monospace, Consolas, monospace; background: var(--surface2); padding: 1px 5px; border-radius: 4px; }
+.steps { padding-left: 18px; font-size: 12px; color: var(--text2); }
+.steps li { margin-bottom: 6px; }
+
+.mail-list { max-height: 280px; overflow: auto; text-align: left; }
+.mail-item { border: 0.5px solid var(--border); border-radius: var(--radius); padding: 10px 12px; margin-bottom: 8px; font-size: 12px; }
+.mail-meta { color: var(--text3); font-size: 11px; }
+.mail-subj { font-weight: 600; margin: 2px 0; }
+
+.ac-wrap a, .modal a { color: var(--teal); }

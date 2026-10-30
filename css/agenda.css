@@ -1,0 +1,40 @@
+/* Vista Agenda (lista de citas) */
+/* ─── AGENDA ─── */
+.agenda-body { flex: 1; overflow-y: auto; padding: 16px 20px; }
+.agenda-date-group { margin-bottom: 20px; }
+.agenda-date-label {
+  font-size: 11px; font-weight: 600; color: var(--text2);
+  text-transform: uppercase; letter-spacing: .08em;
+  margin-bottom: 8px;
+  display: flex; align-items: center; gap: 8px;
+}
+.agenda-date-label::after {
+  content: ''; flex: 1; height: 0.5px; background: var(--border);
+}
+.agenda-row {
+  display: flex; gap: 12px; align-items: stretch;
+  padding: 10px 12px;
+  border-radius: var(--radius);
+  border: 0.5px solid var(--border);
+  margin-bottom: 6px;
+  background: var(--surface);
+  cursor: pointer; transition: all .15s;
+}
+.agenda-row:hover { border-color: var(--teal-mid); box-shadow: 0 0 0 2px var(--teal-light); }
+.agenda-time-col { min-width: 52px; display: flex; flex-direction: column; align-items: flex-end; justify-content: center; }
+.agenda-time { font-size: 12px; font-weight: 600; }
+.agenda-dur  { font-size: 10px; color: var(--text3); }
+.agenda-line { width: 2px; border-radius: 1px; background: var(--teal-mid); align-self: stretch; margin: 0 4px; }
+.agenda-line.pending  { background: var(--amber); }
+.agenda-line.cancelled { background: var(--coral); }
+.agenda-line.break    { background: var(--border2); }
+.agenda-info { flex: 1; }
+.agenda-client  { font-size: 13px; font-weight: 600; }
+.agenda-service { font-size: 11px; color: var(--text2); margin-top: 1px; }
+.agenda-badge {
+  font-size: 9px; padding: 2px 7px; border-radius: 10px; font-weight: 600;
+}
+.agenda-badge.confirmed { background: #EAF3DE; color: #3B6D11; }
+.agenda-badge.pending   { background: #FAEEDA; color: #854F0B; }
+.agenda-badge.cancelled { background: #FCEBEB; color: #791F1F; }
+.agenda-actions { display: flex; align-items: center; gap: 4px; }

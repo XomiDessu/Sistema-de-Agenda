@@ -1,74 +1,58 @@
-# Agenda de Citas
+# Agenda de Citas — MVP Entregable
 
-Aplicación web de agenda de citas. Funciona abriendo `index.html` con doble clic (sin servidor ni instalación).
-Los datos se guardan en el `localStorage` del navegador.
+Aplicación web full-stack de gestión de citas con backend en Python 3 (sin dependencias externas), base de datos **SQLite**, seguridad en servidor, **portal público de reservas con QR**, catálogo e historial de clientes, notificaciones SMTP, reportes e importación/exportación CSV y `.ics`.
 
-## Estructura
+## Requisitos
 
+- **Python 3.10+** (no requiere `pip install` ni `npm install`)
+- Opcional: Docker / Docker Compose para despliegue en producción
+
+## Inicio rápido (local)
+
+1. Copia el archivo de variables de entorno:
+   ```bash
+   cp .env.example .env
+   ```
+2. (Opcional) Define `ADMIN_USER` y `ADMIN_PASSWORD` en `.env` (mínimo 10 caracteres, mayúscula, minúscula y número). Si los dejas vacíos, el servidor imprimirá un **Token de configuración inicial** de un solo uso en la consola para registrar al primer administrador de forma segura.
+3. Inicia el servidor:
+   ```bash
+   python3 server.py
+   ```
+4. Abre `http://localhost:8000` en tu navegador.
+
+## Funcionalidades incluidas en el MVP
+
+- **Backend y persistencia real (`SQLite`):** Base de datos en `data/agenda.db` en modo WAL con llaves foráneas y migración automática.
+- **Seguridad en servidor:**
+  - Contraseñas con PBKDF2-SHA256 (150,000 iteraciones + sal aleatoria).
+  - Sesiones en servidor con cookies `HttpOnly` y `SameSite=Lax` (`Secure` bajo HTTPS).
+  - Protección CSRF, cabeceras de seguridad HTTP y limitación de tasa (*rate limiting*).
+  - 2FA (TOTP RFC 6238), códigos de respaldo y códigos temporales (OTC) validados exclusivamente en servidor.
+  - Aprovisionamiento controlado del administrador inicial (`.env` o `SETUP_TOKEN`).
+- **Lógica de citas y prevención de traslapes:**
+  - Bloquea doble reserva considerando la duración real de cada servicio.
+  - Impide agendar en días no laborables, fuera de horario, durante descansos o en fechas/horas pasadas.
+- **Portal público de reservas (`/reservar/<slug>`):**
+  - Enlace único y código QR por agenda para que los clientes consulten disponibilidad en tiempo real y reserven sin iniciar sesión.
+- **Catálogo e historial de clientes:**
+  - Registro automático al crear citas, autocompletado en el modal y vista de historial de visitas y cancelaciones.
+- **Correo transaccional SMTP y recordatorios:**
+  - Compatible con Gmail (App Password), Resend, SendGrid o Brevo desde el servidor; incluye modo demostración local para pruebas.
+  - Avisos de confirmación, cancelación, reagendamiento y envío de recordatorios individuales o masivos para el día siguiente.
+- **Reportes y exportación:**
+  - Resumen de ingresos, tasa de cancelación, desglose por servicio y descarga en **CSV** e **iCalendar (`.ics`)**.
+- **Diseño responsivo móvil:** Menú lateral colapsable y vistas adaptadas a teléfonos.
+
+## Ejecutar pruebas automatizadas
+
+```bash
+python3 -m unittest discover -s tests -v
 ```
-index.html            Estructura de la página (HTML) y lista de scripts
-css/
-  base.css            Variables de color, reset, tipografía
-  layout.css          Sidebar, mini-calendario, barra superior, vistas
-  components.css      Botones, formularios, modales, tablas, mensajes
-  calendar.css        Calendario y panel del día
-  agenda.css          Lista de citas
-  settings.css        Horarios
-  services.css        Servicios
-  auth.css            Pantalla de login
-  account.css         Mi cuenta y bandeja de correo de demostración
-js/
-  core/               Constantes, utilidades, estado (S), base de datos local (DB),
-                      criptografía, TOTP y códigos de un solo uso (otc)
-  mail/mail.js        Envío de correo (modo demostración o EmailJS) y plantillas
-  ui/                 Navegación entre vistas (views.js) y diálogo genérico
-  calendar/ agenda/ settings/ services/ appointments/   Una carpeta por vista
-  auth/               Sesión, pantallas de login, registro y recuperación
-  agendas/            Varias agendas por usuario y guardado automático
-  account/            Vista "Mi cuenta": una pestaña por archivo (tab-*.js)
-  admin/users.js      Usuarios y bitácora (solo administrador)
-  dev/seed-demo.js    Datos de ejemplo (no se carga; solo para usar desde la consola)
-  main.js             Arranque
+
+## Despliegue en producción (Docker)
+
+```bash
+cp .env.example .env
+# Edita .env: configura COOKIE_SECURE=true (detrás de Nginx/Caddy/Render/Railway con HTTPS) y tus credenciales SMTP
+docker compose up -d --build
 ```
-
-## Orden de carga
-
-Los scripts son clásicos (no módulos) para que funcione con doble clic; comparten el ámbito global.
-Por eso el orden en `index.html` importa:
-`core` → `mail` → `ui` → vistas → `auth` → `agendas` → `account` → `admin` → `agendas/persistence.js` → `main.js`.
-`persistence.js` envuelve funciones de otros archivos, así que va casi al final.
-
-## Cómo agregar cosas
-
-- **Nueva vista:** un `<div id="view-X" class="view">` y un botón `id="nav-X"` en `index.html`, y una entrada en `VIEWS` de `js/ui/views.js`.
-- **Nueva pestaña en Mi cuenta:** una entrada en `AC_TABS` (`js/account/account-view.js`) y una función que devuelva su HTML.
-
-## Cuenta de usuario
-
-| Opción | Dónde |
-|---|---|
-| Nombre | Mi cuenta → Perfil |
-| Correo con código de verificación (6 dígitos, 10 min, 5 intentos) | Mi cuenta → Correo |
-| Recuperar contraseña por correo (activar/desactivar) | Mi cuenta → Recuperación |
-| 8 códigos de recuperación de un solo uso | Mi cuenta → Recuperación |
-| Cambio de contraseña, 2FA, cierre por inactividad (5/15/30/60 min) | Mi cuenta → Seguridad |
-| Servicio de envío de correo (admin) | Mi cuenta → Servicio de correo |
-
-En el login: **¿Olvidaste tu contraseña?** → código por correo, o **Usar un código de recuperación**.
-Si la cuenta tiene 2FA, restablecer la contraseña también pide el código del autenticador.
-Las respuestas no revelan si un usuario o correo existe.
-
-## Conectar correo real (EmailJS)
-
-1. En emailjs.com crea un servicio de correo y una plantilla con destinatario `{{to_email}}`, asunto `{{subject}}` y cuerpo `{{message}}`.
-2. Entra como administrador → Mi cuenta → Servicio de correo → modo EmailJS, pega Service ID, Template ID y Public Key, guarda y usa "Enviar correo de prueba".
-3. En el panel de EmailJS limita dominios y envíos por día (la Public Key es visible en el navegador).
-
-Mientras no lo configures, la app usa el **modo demostración**: los correos se guardan en una bandeja local
-(visible en el login → "Ver bandeja de correo de demostración").
-
-## Límite importante
-
-Todo corre en el navegador: no hay servidor. Quien tenga acceso al navegador y a sus herramientas de desarrollo
-puede leer o modificar `localStorage`, así que estas protecciones sirven para uso personal o demostración.
-Para producción hacen falta un backend y una base de datos reales, que sean quienes generen y validen los códigos y envíen los correos.

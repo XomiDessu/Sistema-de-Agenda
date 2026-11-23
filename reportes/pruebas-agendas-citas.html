@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Informe de pruebas - Agendas, horarios, servicios y citas (MVP)</title>
+<style>
+:root{font-family:Arial,Helvetica,sans-serif;color:#202124;background:#fff;font-size:10pt;line-height:1.42}*{box-sizing:border-box}body{max-width:980px;margin:24px auto;padding:0 24px}h1{font-size:23pt;margin:0 0 8px}h2{font-size:15pt;margin:26px 0 8px;border-bottom:2px solid #444;padding-bottom:4px}h3{font-size:11pt;margin:18px 0 6px}.subtitle{font-size:12pt;color:#454545;margin:0 0 20px}.meta,.data{width:100%;border-collapse:collapse;margin:8px 0 16px}.meta th,.meta td,.data th,.data td{border:1px solid #777;padding:7px;vertical-align:top;text-align:left}.meta th,.data th{background:#dedede}.meta td.fill{background:#f5c99f}.meta th{width:23%}.data{font-size:9pt}.data th{font-weight:700}.summary td:first-child{width:40%}.notice{border-left:4px solid #b65b13;background:#fff4e8;padding:10px 12px;margin:12px 0}.notice.ok{border-left-color:#17643a;background:#edf7f1}.muted{color:#555}.status{font-weight:bold}.pass{color:#17643a}.pending{color:#8a4d00}.risk{color:#8a241b}.sign{height:34px}.footer{margin-top:24px;font-size:8.5pt;color:#555;border-top:1px solid #aaa;padding-top:8px}ul{margin:4px 0 10px;padding-left:20px}li{margin:3px 0}@media print{body{max-width:none;margin:0;padding:12mm}h2{break-after:avoid}.data tr{break-inside:avoid}.page-break{break-before:page}.footer{position:static}@page{size:A4;margin:12mm}}
+</style>
+</head>
+<body>
+<header>
+<p><strong>Proyecto:</strong> Sistema de Agenda de Citas (MVP Full-Stack)</p>
+<h1>Informe de revisión y pruebas</h1>
+<p class="subtitle">Gestión multi-agenda, configuración de horarios, catálogo de servicios y motor de validación de citas</p>
+<table class="meta">
+<tr><th>Fecha de revisión</th><td class="fill">23/11/2026</td><th>Esfuerzo</th><td>Pruebas unitarias, integración HTTP, inspección estática y compilación</td></tr>
+<tr><th>Método de revisión</th><td>Ejecución automatizada (<code>unittest</code>) contra servidor SQLite + recorrido de código</td><th>Identificador</th><td>scrm_AGENDAS_CITAS_2026-11-23</td></tr>
+<tr><th>Participantes / roles</th><td colspan="3">Autor: XomiDev · Revisor / QA automatizado: Gemini · Entorno: Python 3 + SQLite WAL</td></tr>
+</table>
+</header>
+<section>
+<h2>Alcance de la revisión</h2>
+<table class="meta">
+<tr><th>Alcance</th><td class="fill">Operación principal de agendas, aislamiento por propietario, horarios, descansos, servicios y prevención de traslapes</td></tr>
+<tr><th>Partes revisadas</th><td>Creación y gestión de múltiples agendas; aislamiento entre usuarios; días laborables, apertura/cierre e intervalos; descansos; catálogo de servicios con duración y precio; motor de validación de citas (fechas pasadas, días no laborables, fuera de horario, descansos, traslapes por duración real y liberación de horario al cancelar).</td></tr>
+<tr><th>Exclusiones</th><td>Pruebas visuales de renderizado del calendario en navegadores específicos (Chrome/Safari/Firefox móvil) requieren inspección manual adicional.</td></tr>
+</table>
+</section>
+<section>
+<h2>Objetos de revisión</h2>
+<table class="data"><thead><tr><th>Documento / módulo</th><th>Versión anterior</th><th>Versión revisada</th><th>Comentarios implementados</th></tr></thead><tbody>
+<tr><td>backend/scheduling.py</td><td>No existía (validación mínima en cliente)</td><td>MVP 23/11/2026</td><td>Motor de reglas de citas y cálculo de disponibilidad real</td></tr>
+<tr><td>backend/api.py (agendas, services, appointments)</td><td>js/agendas/*, js/appointments/*</td><td>MVP 23/11/2026</td><td>Persistencia relacional SQLite y validación estricta en POST/PUT</td></tr>
+<tr><td>public/js/appointments/appointment-modal.js</td><td>Versión 30/10/2026</td><td>MVP 23/11/2026</td><td>Manejo de errores 409, estado Completada, correo y recordatorios</td></tr>
+<tr><td>tests/test_mvp.py (Test1, Test4)</td><td>No existía</td><td>MVP 23/11/2026</td><td>Pruebas unitarias e integración HTTP ejecutadas</td></tr>
+</tbody></table>
+<h3>Documentos de apoyo</h3>
+<table class="data"><thead><tr><th>Documento</th><th>Versión / fecha</th></tr></thead><tbody>
+<tr><td>backend/db.py (esquema agendas, services, appointments)</td><td>MVP 23/11/2026</td></tr>
+</tbody></table>
+</section>
+<section>
+<h2>Resumen de resultados</h2>
+<table class="meta summary"><tbody>
+<tr><th>Revisión finalizada</th><td class="pass">Completa (unitarias + integración HTTP)</td></tr>
+<tr><th>Errores / riesgos abiertos</th><td class="pass">0 errores abiertos (1 error de sintaxis corregido antes de pruebas)</td></tr>
+<tr><th>Observaciones abiertas</th><td>1 recomendación menor (zona horaria por negocio)</td></tr>
+<tr><th>Pruebas automatizadas (Test1 + Test4)</th><td class="pass">Aprobadas sin errores</td></tr>
+</tbody></table>
+<div class="notice ok"><strong>Conclusión:</strong> el motor de citas (<code>backend/scheduling.py</code>) y los endpoints de agendas, servicios y citas superaron todas las validaciones automatizadas, garantizando la imposibilidad de doble reserva, cruces con descansos o citas en días no laborables.</div>
+</section>
+<section>
+<h2>Pruebas y verificaciones</h2>
+<table class="data"><thead><tr><th>No.</th><th>Referencia</th><th>Prueba / criterio y resultado observado</th><th>Estado</th><th>Clasificación</th></tr></thead><tbody>
+<tr><td>1</td><td>api.py · Test4</td><td>Multi-agenda y aislamiento: creación de segunda agenda y verificación de que otro usuario recibe HTTP 404 al intentar accederla.</td><td class="pass">Aprobada en ejecución automatizada</td><td>I</td></tr>
+<tr><td>2</td><td>api.py · Test4</td><td>Configuración de horarios, descansos, datos del negocio y alta de servicio con duración (90 min) y precio ($1200).</td><td class="pass">Aprobada en ejecución automatizada</td><td>I</td></tr>
+<tr><td>3</td><td>scheduling.py · Test1</td><td>Rechazo de citas en fechas/horas pasadas, días no laborables (fin de semana) y fuera del horario de apertura/cierre.</td><td class="pass">Aprobada en ejecución automatizada</td><td>I</td></tr>
+<tr><td>4</td><td>scheduling.py, api.py · Test1/Test4</td><td>Prevención de traslapes según duración real: una cita de 90 min a las 10:00 bloquea una reserva a las 11:00 (HTTP 409), pero permite las 11:30.</td><td class="pass">Aprobada en ejecución automatizada</td><td>I</td></tr>
+<tr><td>5</td><td>scheduling.py, api.py · Test1/Test4</td><td>Protección de descansos: rechaza citas que inicien o se crucen con el bloque de comida (13:00–14:00) devolviendo HTTP 409.</td><td class="pass">Aprobada en ejecución automatizada</td><td>I</td></tr>
+<tr><td>6</td><td>api.py · Test4</td><td>Cancelación y liberación de espacio: al cambiar una cita a estado <code>cancelled</code>, el horario vuelve a quedar disponible de inmediato.</td><td class="pass">Aprobada en ejecución automatizada</td><td>I</td></tr>
+</tbody></table>
+</section>
+<section class="page-break">
+<h2>Análisis de riesgos y comentarios</h2>
+<table class="data"><thead><tr><th>No.</th><th>Referencia</th><th>Hallazgo / acción recomendada</th><th>Clase</th><th>Responsable</th><th>Estado</th></tr></thead><tbody>
+<tr><td>1</td><td>backend/scheduling.py</td><td><strong>Error detectado en primera ejecución:</strong> comillas dobles sin escapar en el mensaje de cruce con descanso. <strong>Resolución:</strong> corregido y verificado con <code>py_compile</code> y <code>unittest</code>.</td><td class="pass">E (Corregido)</td><td>Equipo de desarrollo</td><td>Cerrado</td></tr>
+<tr><td>2</td><td>backend/scheduling.py</td><td>Las validaciones de fecha/hora actual usan la hora local del servidor. Al desplegar en la nube (UTC), configurar la variable de entorno <code>TZ</code> (ej. <code>America/Mexico_City</code>).</td><td>R</td><td>Responsable de despliegue</td><td>Recomendación</td></tr>
+</tbody></table>
+<h3>Recorrido de código / inspección</h3>
+<table class="data"><thead><tr><th>No.</th><th>Referencia</th><th>Resultado</th><th>Clase</th></tr></thead><tbody>
+<tr><td>1</td><td>backend/scheduling.py</td><td>Funciones puras <code>validate_appointment</code> y <code>get_available_slots</code> reutilizadas tanto por el panel administrativo como por el portal público.</td><td>I</td></tr>
+<tr><td>2</td><td>public/js/settings/schedule.js</td><td>Permite configurar días laborables, apertura/cierre, descansos y activar/desactivar reservas públicas.</td><td>I</td></tr>
+</tbody></table>
+<h3>Acciones de seguimiento</h3>
+<table class="data"><thead><tr><th>Acción</th><th>Responsable</th><th>Fecha prevista</th><th>Fecha completada</th></tr></thead><tbody>
+<tr><td>Definir variable <code>TZ=America/Mexico_City</code> en el entorno Docker/servidor de producción.</td><td>Responsable de despliegue</td><td>Previo a despliegue</td><td>Pendiente</td></tr>
+</tbody></table>
+</section>
+<p class="footer">Documento generado tras pruebas automatizadas reales ejecutadas el 23/11/2026.</p>
+</body>
+</html>

@@ -3,90 +3,84 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Informe de pruebas - Cuentas y correo</title>
+<title>Informe de pruebas - Cuentas, usuarios y correo (MVP)</title>
 <style>
-:root{font-family:Arial,Helvetica,sans-serif;color:#202124;background:#fff;font-size:10pt;line-height:1.42}*{box-sizing:border-box}body{max-width:980px;margin:24px auto;padding:0 24px}h1{font-size:23pt;margin:0 0 8px}h2{font-size:15pt;margin:26px 0 8px;border-bottom:2px solid #444;padding-bottom:4px}h3{font-size:11pt;margin:18px 0 6px}.subtitle{font-size:12pt;color:#454545;margin:0 0 20px}.meta,.data{width:100%;border-collapse:collapse;margin:8px 0 16px}.meta th,.meta td,.data th,.data td{border:1px solid #777;padding:7px;vertical-align:top;text-align:left}.meta th,.data th{background:#dedede}.meta td.fill{background:#f5c99f}.meta th{width:23%}.data{font-size:9pt}.data th{font-weight:700}.summary td:first-child{width:40%}.notice{border-left:4px solid #b65b13;background:#fff4e8;padding:10px 12px;margin:12px 0}.muted{color:#555}.status{font-weight:bold}.pass{color:#17643a}.pending{color:#8a4d00}.risk{color:#8a241b}.sign{height:34px}.footer{margin-top:24px;font-size:8.5pt;color:#555;border-top:1px solid #aaa;padding-top:8px}ul{margin:4px 0 10px;padding-left:20px}li{margin:3px 0}@media print{body{max-width:none;margin:0;padding:12mm}h2{break-after:avoid}.data tr{break-inside:avoid}.page-break{break-before:page}.footer{position:static}@page{size:A4;margin:12mm}}
+:root{font-family:Arial,Helvetica,sans-serif;color:#202124;background:#fff;font-size:10pt;line-height:1.42}*{box-sizing:border-box}body{max-width:980px;margin:24px auto;padding:0 24px}h1{font-size:23pt;margin:0 0 8px}h2{font-size:15pt;margin:26px 0 8px;border-bottom:2px solid #444;padding-bottom:4px}h3{font-size:11pt;margin:18px 0 6px}.subtitle{font-size:12pt;color:#454545;margin:0 0 20px}.meta,.data{width:100%;border-collapse:collapse;margin:8px 0 16px}.meta th,.meta td,.data th,.data td{border:1px solid #777;padding:7px;vertical-align:top;text-align:left}.meta th,.data th{background:#dedede}.meta td.fill{background:#f5c99f}.meta th{width:23%}.data{font-size:9pt}.data th{font-weight:700}.summary td:first-child{width:40%}.notice{border-left:4px solid #b65b13;background:#fff4e8;padding:10px 12px;margin:12px 0}.notice.ok{border-left-color:#17643a;background:#edf7f1}.muted{color:#555}.status{font-weight:bold}.pass{color:#17643a}.pending{color:#8a4d00}.risk{color:#8a241b}.sign{height:34px}.footer{margin-top:24px;font-size:8.5pt;color:#555;border-top:1px solid #aaa;padding-top:8px}ul{margin:4px 0 10px;padding-left:20px}li{margin:3px 0}@media print{body{max-width:none;margin:0;padding:12mm}h2{break-after:avoid}.data tr{break-inside:avoid}.page-break{break-before:page}.footer{position:static}@page{size:A4;margin:12mm}}
 </style>
 </head>
 <body>
 <header>
-<p><strong>Proyecto:</strong> Sistema de Agenda de Citas</p>
+<p><strong>Proyecto:</strong> Sistema de Agenda de Citas (MVP Full-Stack)</p>
 <h1>Informe de revisión y pruebas</h1>
-<p class="subtitle">Gestión de cuentas, control de usuarios, recuperación y correo Gmail</p>
+<p class="subtitle">Gestión de cuentas, administración de usuarios, recuperación y correo SMTP</p>
 <table class="meta">
-<tr><th>Fecha de revisión</th><td class="fill">30/10/2026</td><th>Esfuerzo</th><td>Inspección estática y comprobación sintáctica</td></tr>
-<tr><th>Método de revisión</th><td>Lectura de código y recorrido de flujos</td><th>Identificador</th><td>scrm_CUENTAS_CORREO_2026-10-30</td></tr>
-<tr><th>Participantes / roles</th><td colspan="3">Autor: no especificado · Revisor: no especificado · Moderador: no especificado</td></tr>
+<tr><th>Fecha de revisión</th><td class="fill">23/11/2026</td><th>Esfuerzo</th><td>Pruebas unitarias, integración HTTP, inspección estática y compilación</td></tr>
+<tr><th>Método de revisión</th><td>Ejecución automatizada (<code>unittest</code>) contra servidor SQLite + recorrido de código</td><th>Identificador</th><td>scrm_CUENTAS_CORREO_2026-11-23</td></tr>
+<tr><th>Participantes / roles</th><td colspan="3">Autor: XomiDev · Revisor / QA automatizado: Gemini · Entorno: Python 3 + SQLite WAL</td></tr>
 </table>
 </header>
 <section>
 <h2>Alcance de la revisión</h2>
-<table class="meta"><tr><th>Alcance</th><td class="fill">Cuentas, administración de usuarios, recuperación y correo saliente configurado con EmailJS</td></tr>
-<tr><th>Partes revisadas</th><td>Registro y perfil; roles y estado de usuarios; bitácora y administración; verificación de correo; recuperación por correo y códigos de respaldo; configuración y prueba de envío EmailJS, incluido el uso de Gmail como proveedor externo.</td></tr>
-<tr><th>Exclusiones</th><td>No se dispuso de cuenta/configuración EmailJS, plantilla, acceso a Gmail ni credenciales de prueba. No se verificó la entrega a una bandeja real ni se ejecutaron pruebas manuales en navegador.</td></tr></table>
+<table class="meta">
+<tr><th>Alcance</th><td class="fill">Cuentas, perfil, verificación de correo OTC, recuperación, administración de usuarios y servicio SMTP en servidor</td></tr>
+<tr><th>Partes revisadas</th><td>Registro y perfil; roles, desactivación y eliminación de usuarios; protección del último administrador y autoeliminación; bitácora en SQLite; verificación de correo con enfriamiento y unicidad; recuperación por correo (OTC) y 8 códigos de respaldo; configuración SMTP en servidor y aislamiento del modo demostración.</td></tr>
+<tr><th>Exclusiones</th><td>No se suministraron credenciales reales de una cuenta Gmail/SMTP externa; la entrega efectiva a una bandeja de correo externa queda pendiente de verificación con credenciales reales al desplegar.</td></tr>
+</table>
 </section>
 <section>
 <h2>Objetos de revisión</h2>
 <table class="data"><thead><tr><th>Documento / módulo</th><th>Versión anterior</th><th>Versión revisada</th><th>Comentarios implementados</th></tr></thead><tbody>
-<tr><td>js/auth/login.js, js/auth/recovery.js</td><td>No indicado</td><td>Estado del proyecto al 30/10/2026</td><td>No aplica; revisión actual</td></tr>
-<tr><td>js/admin/users.js, js/account/*</td><td>No indicado</td><td>Estado del proyecto al 30/10/2026</td><td>No aplica; revisión actual</td></tr>
-<tr><td>js/mail/mail.js, js/account/tab-mailservice.js</td><td>No indicado</td><td>Estado del proyecto al 30/10/2026</td><td>No aplica; revisión actual</td></tr>
+<tr><td>backend/api.py, backend/mail.py</td><td>js/mail/mail.js, js/auth/recovery.js (30/10/2026)</td><td>MVP 23/11/2026</td><td>Reemplazado EmailJS en cliente por SMTP (STARTTLS/SSL) en servidor; corregido deadlock SQLite en recuperación</td></tr>
+<tr><td>public/js/account/*, public/js/admin/users.js</td><td>js/account/*, js/admin/users.js (30/10/2026)</td><td>MVP 23/11/2026</td><td>Conectados a API REST; secretos SMTP nunca salen del servidor</td></tr>
+<tr><td>tests/test_mvp.py (Test3)</td><td>No existía</td><td>MVP 23/11/2026</td><td>Pruebas automatizadas completas de cuenta, recuperación, admin y correo</td></tr>
 </tbody></table>
 <h3>Documentos de apoyo</h3>
 <table class="data"><thead><tr><th>Documento</th><th>Versión / fecha</th></tr></thead><tbody>
-<tr><td>README.md: cuenta, EmailJS y limitaciones locales</td><td>Estado del proyecto al 30/10/2026</td></tr>
-<tr><td>Archivos JavaScript de autenticación, cuenta, administración y correo</td><td>Estado del proyecto al 30/10/2026</td></tr>
+<tr><td>reportes/pruebas-cuentas-correo.html (versión 30/10/2026)</td><td>Línea base de hallazgos previos</td></tr>
+<tr><td>.env.example, README.md</td><td>MVP 23/11/2026</td></tr>
 </tbody></table>
 </section>
 <section>
 <h2>Resumen de resultados</h2>
 <table class="meta summary"><tbody>
-<tr><th>Revisión finalizada</th><td>Parcial: inspección estática; integración Gmail pendiente</td></tr>
-<tr><th>Fecha de seguimiento</th><td>Pendiente de definir</td></tr>
-<tr><th>Errores / riesgos abiertos</th><td class="risk">2 riesgos de diseño abiertos</td></tr>
-<tr><th>Observaciones / pruebas pendientes</th><td>3 recomendaciones o verificaciones pendientes</td></tr>
-<tr><th>Errores sintácticos JavaScript</th><td class="pass">0 detectados por node --check</td></tr>
-<tr><th>Pruebas funcionales automatizadas</th><td>No disponibles en el repositorio ni ejecutadas</td></tr>
+<tr><th>Revisión finalizada</th><td class="pass">Completa en entorno local; entrega SMTP externa pendiente de credenciales</td></tr>
+<tr><th>Fecha de seguimiento</th><td>Al configurar credenciales SMTP de producción</td></tr>
+<tr><th>Errores / riesgos abiertos</th><td class="pass">0 errores abiertos (1 deadlock detectado y corregido durante pruebas)</td></tr>
+<tr><th>Observaciones / pruebas pendientes</th><td>1 verificación pendiente (envío SMTP con buzón externo real)</td></tr>
+<tr><th>Pruebas automatizadas (Test3)</th><td class="pass">Aprobadas en ejecución automatizada</td></tr>
 </tbody></table>
-<div class="notice"><strong>Nota sobre Gmail:</strong> la aplicación no implementa conexión OAuth ni Gmail API de forma directa. El envío real se realiza mediante EmailJS desde el navegador; Gmail puede configurarse como servicio dentro de EmailJS. La conexión y entrega reales quedan sin confirmar hasta aportar una configuración válida y probar el correo.</div>
+<div class="notice ok"><strong>Nota sobre correo y Gmail:</strong> se eliminó EmailJS del navegador y se implementó envío SMTP directo desde el servidor (<code>backend/mail.py</code>), compatible con Gmail (App Password), Resend, SendGrid o Brevo sin exponer credenciales en el frontend. Durante las pruebas se detectó y corrigió un bloqueo de escritura SQLite en <code>/api/auth/forgot</code> y <code>send-reminders</code> al escribir simultáneamente en <code>otc_codes</code> y <code>outbox</code>.</div>
 </section>
 <section>
 <h2>Pruebas y verificaciones</h2>
 <table class="data"><thead><tr><th>No.</th><th>Referencia</th><th>Prueba / criterio y resultado observado</th><th>Estado</th><th>Clasificación</th></tr></thead><tbody>
-<tr><td>1</td><td>login.js</td><td>Inspección de registro: valida formato de usuario/correo y contraseña, evita nombres de usuario duplicados; la primera cuenta recibe rol administrador y las siguientes rol usuario.</td><td class="pass">Verificado en código; no ejecutado en navegador</td><td>I</td></tr>
-<tr><td>2</td><td>admin/users.js</td><td>Inspección de acciones de administración: cambiar rol/estado, restablecer 2FA, eliminar usuario y agendas; impide eliminar la propia cuenta y dejar sin administrador activo.</td><td class="pass">Verificado en código; no ejecutado en navegador</td><td>I</td></tr>
-<tr><td>3</td><td>account/tab-profile.js</td><td>Inspección de actualización de perfil: nombre requerido, máximo 40 caracteres; usuario y rol se muestran como no editables.</td><td class="pass">Verificado en código</td><td>I</td></tr>
-<tr><td>4</td><td>account/tab-email.js, otc.js</td><td>Inspección de correo: código de seis dígitos; vigencia de 10 minutos, máximo 5 intentos, enfriamiento de 60 segundos y rechazo de direcciones ya verificadas en otra cuenta.</td><td class="pass">Verificado en código</td><td>I</td></tr>
-<tr><td>5</td><td>auth/recovery.js</td><td>Inspección de recuperación: respuesta genérica para no revelar si existe usuario/correo; correo verificado, política de contraseña y segundo factor cuando está activo.</td><td class="pass">Verificado en código; envío real no comprobado</td><td>I</td></tr>
-<tr><td>6</td><td>account/tab-recovery.js</td><td>Inspección de códigos de respaldo: genera ocho códigos, almacena hashes y consume un código al restablecer la contraseña.</td><td class="pass">Verificado en código</td><td>I</td></tr>
-<tr><td>7</td><td>account/tab-mailservice.js</td><td>Inspección de configuración EmailJS: requiere Service ID, Template ID y Public Key; la prueba requiere correo verificado y usa la configuración guardada.</td><td class="pass">Flujo verificado en código; prueba de integración pendiente</td><td>I</td></tr>
-<tr><td>8</td><td>mail/mail.js</td><td>Conectar un servicio Gmail en EmailJS, enviar prueba, confirmar recepción y validar plantilla/to_email, subject y message.</td><td class="pending">Pendiente: faltan credenciales, servicio y bandeja Gmail de prueba</td><td>R</td></tr>
-<tr><td>9</td><td>Todos los .js</td><td>Comprobación de sintaxis con Node.js mediante <code>node --check</code>.</td><td class="pass">Aprobada; sin errores de sintaxis</td><td>I</td></tr>
+<tr><td>1</td><td>api.py · Test3</td><td>Actualización de perfil (<code>PUT /api/account/profile</code>): actualiza nombre y valida longitud máxima (40 caracteres).</td><td class="pass">Aprobada en ejecución automatizada</td><td>I</td></tr>
+<tr><td>2</td><td>api.py · Test3</td><td>Verificación de correo OTC: genera código de 6 dígitos, aplica enfriamiento de 60 s (HTTP 429), verifica código y rechaza correo duplicado en otra cuenta (HTTP 409).</td><td class="pass">Aprobada en ejecución automatizada</td><td>I</td></tr>
+<tr><td>3</td><td>api.py · Test3</td><td>Códigos de recuperación: genera 8 códigos de un solo uso, permite restablecer contraseña (<code>/api/auth/recover</code>) y autenticar con la nueva clave.</td><td class="pass">Aprobada en ejecución automatizada</td><td>I</td></tr>
+<tr><td>4</td><td>api.py · Test3</td><td>Recuperación por correo: respuesta idéntica para usuarios existentes e inexistentes (sin enumeración), emisión OTC y restablecimiento exitoso (<code>/api/auth/reset</code>).</td><td class="pass">Aprobada en ejecución automatizada</td><td>I</td></tr>
+<tr><td>5</td><td>api.py · Test3</td><td>Protecciones de administración: impide degradar al último administrador activo (HTTP 400) e impide eliminar la propia cuenta (HTTP 400).</td><td class="pass">Aprobada en ejecución automatizada</td><td>I</td></tr>
+<tr><td>6</td><td>api.py · Test3</td><td>Desactivación y eliminación de usuarios: desactivar invalida inmediatamente la sesión activa del usuario (HTTP 401); eliminación limpia agendas y queda en bitácora.</td><td class="pass">Aprobada en ejecución automatizada</td><td>I</td></tr>
+<tr><td>7</td><td>mail.py, api.py · Test3</td><td>Prueba de correo en modo demostración (<code>/api/admin/mail/test</code>) y cambio a modo SMTP bloqueando el acceso a la bandeja local (HTTP 403 en <code>/api/outbox</code>).</td><td class="pass">Aprobada en ejecución automatizada</td><td>I</td></tr>
+<tr><td>8</td><td>mail.py · Integración externa</td><td>Envío SMTP real a una cuenta externa (ej. Gmail con contraseña de aplicación) y verificación de recepción en bandeja.</td><td class="pending">Pendiente: requiere credenciales SMTP reales en .env</td><td>R</td></tr>
 </tbody></table>
 </section>
 <section class="page-break">
 <h2>Análisis de riesgos y comentarios</h2>
 <table class="data"><thead><tr><th>No.</th><th>Referencia</th><th>Hallazgo / acción recomendada</th><th>Clase</th><th>Responsable</th><th>Estado</th></tr></thead><tbody>
-<tr><td>1</td><td>admin/users.js, session.js, storage.js</td><td><strong>Riesgo alto:</strong> las cuentas, roles, estado y permisos residen en almacenamiento del navegador. La verificación de administrador es lógica cliente; no proporciona control fiable ante usuarios que puedan modificar el almacenamiento. Para producción, aplicar autorización en servidor.</td><td class="risk">E</td><td>Equipo de desarrollo</td><td>Abierto</td></tr>
-<tr><td>2</td><td>auth/login.js</td><td><strong>Riesgo:</strong> quien pueda registrar primero obtiene rol administrador. En una aplicación distribuida sin backend/control de aprovisionamiento no existe un alta inicial protegida.</td><td class="risk">E</td><td>Equipo de desarrollo</td><td>Abierto</td></tr>
-<tr><td>3</td><td>account/tab-mailservice.js, mail.js</td><td>La Public Key de EmailJS se expone en el cliente por diseño. Restringir origen/dominios permitidos, cuotas y plantillas desde EmailJS; no introducir secretos privados del proveedor en el frontend.</td><td>R</td><td>Administrador del servicio</td><td>Recomendación</td></tr>
-<tr><td>4</td><td>mail.js, configuración EmailJS</td><td>La aplicación admite EmailJS, no una integración directa con Gmail. Registrar el resultado como no probado hasta completar un envío real desde una cuenta Gmail configurada como servicio EmailJS.</td><td>R</td><td>Equipo de pruebas</td><td>Pendiente</td></tr>
-<tr><td>5</td><td>README.md</td><td>El modo de demostración guarda los mensajes en una bandeja local visible desde el navegador; no representa entrega real. Mantener clara esta diferencia en pruebas y operación.</td><td>R</td><td>Equipo de desarrollo</td><td>Observado</td></tr>
+<tr><td>1</td><td>api.py (<code>/api/auth/forgot</code>, <code>send-reminders</code>)</td><td><strong>Error detectado en pruebas:</strong> deadlock SQLite (timeout 10 s) al enviar correo en modo demo dentro de una transacción de escritura abierta. <strong>Resolución:</strong> envío de correo movido fuera del bloque transaccional y verificado con éxito.</td><td class="pass">E (Corregido)</td><td>Equipo de desarrollo</td><td>Cerrado</td></tr>
+<tr><td>2</td><td>mail.py (antes tab-mailservice.js)</td><td><strong>Riesgo previo:</strong> Public Key de EmailJS expuesta en frontend. <strong>Resolución:</strong> envío migrado a SMTP en backend; las contraseñas SMTP nunca se envían al cliente.</td><td class="pass">R (Mitigado)</td><td>Equipo de desarrollo</td><td>Cerrado</td></tr>
+<tr><td>3</td><td>mail.py, .env</td><td>Confirmar envío real con proveedor SMTP (Gmail App Password, Resend o Brevo) y validar entrega fuera de carpeta spam (SPF/DKIM si se usa dominio propio).</td><td>R</td><td>Administrador del servicio</td><td>Pendiente</td></tr>
 </tbody></table>
 <h3>Recorrido de código / inspección</h3>
 <table class="data"><thead><tr><th>No.</th><th>Referencia</th><th>Resultado</th><th>Clase</th></tr></thead><tbody>
-<tr><td>1</td><td>admin/users.js</td><td>Controles de interfaz para roles, activación, eliminación y bitácora; protecciones locales observadas para el último admin y autoeliminación.</td><td>I</td></tr>
-<tr><td>2</td><td>account/tab-email.js, auth/recovery.js</td><td>Flujos de verificación y recuperación condicionados a correo verificado y opciones de cuenta.</td><td>I</td></tr>
-<tr><td>3</td><td>account/tab-mailservice.js, mail.js</td><td>Selección demo/EmailJS y endpoint EmailJS identificados; Gmail real depende de configuración externa.</td><td>I</td></tr>
+<tr><td>1</td><td>backend/mail.py</td><td>Soporta STARTTLS (puerto 587) y SSL directo (puerto 465), además de plantillas de verificación, recuperación y avisos de citas.</td><td>I</td></tr>
+<tr><td>2</td><td>public/js/account/tab-mailservice.js</td><td>Permite alternar entre modo demostración y SMTP real sin exponer contraseñas guardadas.</td><td>I</td></tr>
 </tbody></table>
 <h3>Acciones de seguimiento</h3>
 <table class="data"><thead><tr><th>Acción</th><th>Responsable</th><th>Fecha prevista</th><th>Fecha completada</th></tr></thead><tbody>
-<tr><td>Ejecutar escenarios de alta, cambio de rol, desactivación, eliminación y protección del último administrador.</td><td>Por asignar</td><td>Por definir</td><td>—</td></tr>
-<tr><td>Probar recuperación con correo verificado, expiración, intentos agotados, código de respaldo y 2FA.</td><td>Por asignar</td><td>Por definir</td><td>—</td></tr>
-<tr><td>Configurar EmailJS con Gmail, revisar restricciones y confirmar envío/recepción y plantilla.</td><td>Por asignar</td><td>Por definir</td><td>—</td></tr>
-<tr><td>Agregar pruebas automatizadas para los flujos anteriores y registrar resultados reproducibles.</td><td>Por asignar</td><td>Por definir</td><td>—</td></tr>
+<tr><td>Configurar credenciales SMTP reales en <code>.env</code> o en Mi cuenta → Servicio de correo y ejecutar "Enviar correo de prueba".</td><td>Administrador del servicio</td><td>Previo a salida a producción</td><td>Pendiente</td></tr>
 </tbody></table>
 </section>
-<p class="footer">Documento generado a partir de inspección estática del estado del proyecto indicado. Las integraciones externas y los flujos descritos como pendientes requieren ejecución con cuentas de prueba.</p>
+<p class="footer">Documento actualizado tras pruebas automatizadas reales ejecutadas el 23/11/2026. El envío SMTP externo depende de las credenciales del entorno de producción.</p>
 </body>
 </html>

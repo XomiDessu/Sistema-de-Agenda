@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Informe de pruebas - Portal público, clientes, recordatorios y reportes (MVP)</title>
+<style>
+:root{font-family:Arial,Helvetica,sans-serif;color:#202124;background:#fff;font-size:10pt;line-height:1.42}*{box-sizing:border-box}body{max-width:980px;margin:24px auto;padding:0 24px}h1{font-size:23pt;margin:0 0 8px}h2{font-size:15pt;margin:26px 0 8px;border-bottom:2px solid #444;padding-bottom:4px}h3{font-size:11pt;margin:18px 0 6px}.subtitle{font-size:12pt;color:#454545;margin:0 0 20px}.meta,.data{width:100%;border-collapse:collapse;margin:8px 0 16px}.meta th,.meta td,.data th,.data td{border:1px solid #777;padding:7px;vertical-align:top;text-align:left}.meta th,.data th{background:#dedede}.meta td.fill{background:#f5c99f}.meta th{width:23%}.data{font-size:9pt}.data th{font-weight:700}.summary td:first-child{width:40%}.notice{border-left:4px solid #b65b13;background:#fff4e8;padding:10px 12px;margin:12px 0}.notice.ok{border-left-color:#17643a;background:#edf7f1}.muted{color:#555}.status{font-weight:bold}.pass{color:#17643a}.pending{color:#8a4d00}.risk{color:#8a241b}.sign{height:34px}.footer{margin-top:24px;font-size:8.5pt;color:#555;border-top:1px solid #aaa;padding-top:8px}ul{margin:4px 0 10px;padding-left:20px}li{margin:3px 0}@media print{body{max-width:none;margin:0;padding:12mm}h2{break-after:avoid}.data tr{break-inside:avoid}.page-break{break-before:page}.footer{position:static}@page{size:A4;margin:12mm}}
+</style>
+</head>
+<body>
+<header>
+<p><strong>Proyecto:</strong> Sistema de Agenda de Citas (MVP Full-Stack)</p>
+<h1>Informe de revisión y pruebas</h1>
+<p class="subtitle">Portal público de reservas con QR, catálogo e historial de clientes, recordatorios y exportación CSV / .ICS</p>
+<table class="meta">
+<tr><th>Fecha de revisión</th><td class="fill">23/11/2026</td><th>Esfuerzo</th><td>Pruebas unitarias, integración HTTP, inspección estática y compilación</td></tr>
+<tr><th>Método de revisión</th><td>Ejecución automatizada (<code>unittest</code>) contra servidor SQLite + recorrido de código</td><th>Identificador</th><td>scrm_PORTAL_CLIENTES_REPORTES_2026-11-23</td></tr>
+<tr><th>Participantes / roles</th><td colspan="3">Autor: XomiDev · Revisor / QA automatizado: Gemini · Entorno: Python 3 + SQLite WAL</td></tr>
+</table>
+</header>
+<section>
+<h2>Alcance de la revisión</h2>
+<table class="meta">
+<tr><th>Alcance</th><td class="fill">Nuevos módulos del MVP: reservas en línea sin login, CRM básico de clientes, avisos/recordatorios, reportes KPIs y exportaciones</td></tr>
+<tr><th>Partes revisadas</th><td>Vista pública /reservar/<slug>; consulta de disponibilidad en tiempo real; creación de reserva pública con prevención de doble reserva y desactivación de portal; alta automática y gestión de clientes con historial; recordatorios individuales y masivos; cálculo de reportes de ingresos/cancelación y descarga CSV e iCalendar (.ics).</td></tr>
+<tr><th>Exclusiones</th><td>Renderizado del código QR en cliente (librería externa qrcodejs) y visualización en pantallas móviles físicas requieren verificación manual en navegador.</td></tr>
+</table>
+</section>
+<section>
+<h2>Objetos de revisión</h2>
+<table class="data"><thead><tr><th>Documento / módulo</th><th>Versión anterior</th><th>Versión revisada</th><th>Comentarios implementados</th></tr></thead><tbody>
+<tr><td>public/reservar.html, public/js/booking/public-booking.js</td><td>No existía</td><td>MVP 23/11/2026</td><td>Portal público de reservas autónomo con selección de servicio, fecha y slot real</td></tr>
+<tr><td>public/js/clients/clients.js, backend/db.py (clients)</td><td>No existía</td><td>MVP 23/11/2026</td><td>Catálogo de clientes, autocompletado en modal e historial de citas</td></tr>
+<tr><td>backend/export_utils.py, public/js/reports/reports.js</td><td>No existía</td><td>MVP 23/11/2026</td><td>KPIs financieros, tasa de cancelación y exportación CSV / .ICS (compatible Python 3.14)</td></tr>
+<tr><td>public/css/mvp.css, public/js/ui/mobile.js</td><td>No existía</td><td>MVP 23/11/2026</td><td>Adaptación responsiva móvil con menú lateral colapsable</td></tr>
+<tr><td>tests/test_mvp.py (Test4)</td><td>No existía</td><td>MVP 23/11/2026</td><td>Cobertura integral HTTP de todos los módulos nuevos</td></tr>
+</tbody></table>
+<h3>Documentos de apoyo</h3>
+<table class="data"><thead><tr><th>Documento</th><th>Versión / fecha</th></tr></thead><tbody>
+<tr><td>backend/api.py (endpoints públicos, clientes, recordatorios y exportación)</td><td>MVP 23/11/2026</td></tr>
+</tbody></table>
+</section>
+<section>
+<h2>Resumen de resultados</h2>
+<table class="meta summary"><tbody>
+<tr><th>Revisión finalizada</th><td class="pass">Completa (integración HTTP automatizada)</td></tr>
+<tr><th>Errores / riesgos abiertos</th><td class="pass">0 errores abiertos (ajustado escape .ics y timezone.utc)</td></tr>
+<tr><th>Observaciones abiertas</th><td>1 recomendación (tarea programada/cron para recordatorios automáticos)</td></tr>
+<tr><th>Pruebas automatizadas (Test4)</th><td class="pass">Aprobadas sin errores ni advertencias</td></tr>
+</tbody></table>
+<div class="notice ok"><strong>Conclusión:</strong> todos los módulos nuevos del MVP (portal público de reservas, catálogo e historial de clientes, recordatorios por correo, reportes de ingresos y exportaciones CSV / .ICS) fueron validados mediante pruebas automatizadas de integración y operan correctamente.</div>
+</section>
+<section>
+<h2>Pruebas y verificaciones</h2>
+<table class="data"><thead><tr><th>No.</th><th>Referencia</th><th>Prueba / criterio y resultado observado</th><th>Estado</th><th>Clasificación</th></tr></thead><tbody>
+<tr><td>1</td><td>api.py, reservar.html · Test4</td><td>Acceso público a <code>/reservar/&lt;slug&gt;</code> y metadata en <code>/api/public/agendas/&lt;slug&gt;</code> sin requerir autenticación.</td><td class="pass">Aprobada en ejecución automatizada</td><td>I</td></tr>
+<tr><td>2</td><td>api.py · Test4</td><td>Consulta de disponibilidad pública (<code>/slots</code>): excluye citas ocupadas y descansos respetando la duración del servicio elegido.</td><td class="pass">Aprobada en ejecución automatizada</td><td>I</td></tr>
+<tr><td>3</td><td>api.py · Test4</td><td>Reserva pública (<code>/book</code>): crea cita en estado <code>pending</code>, registra al cliente automáticamente y rechaza doble reserva en el mismo horario (HTTP 409).</td><td class="pass">Aprobada en ejecución automatizada</td><td>I</td></tr>
+<tr><td>4</td><td>api.py · Test4</td><td>Control de publicación: al desactivar <code>publicBooking</code> en Horarios, el portal público responde HTTP 404.</td><td class="pass">Aprobada en ejecución automatizada</td><td>I</td></tr>
+<tr><td>5</td><td>api.py, db.py · Test4</td><td>Catálogo e historial de clientes: verifica alta automática (admin y público), listado consolidado y consulta de historial por cliente.</td><td class="pass">Aprobada en ejecución automatizada</td><td>I</td></tr>
+<tr><td>6</td><td>api.py, mail.py · Test4</td><td>Recordatorios: envío de recordatorio individual por correo a cliente (<code>/remind</code>) y registro del mensaje en bandeja/SMTP.</td><td class="pass">Aprobada en ejecución automatizada</td><td>I</td></tr>
+<tr><td>7</td><td>export_utils.py, api.py · Test4</td><td>Reportes KPIs: cálculo exacto de citas totales, cancelaciones (50.0%) e ingresos confirmados ($1,200.00).</td><td class="pass">Aprobada en ejecución automatizada</td><td>I</td></tr>
+<tr><td>8</td><td>export_utils.py, api.py · Test4</td><td>Exportaciones: descarga CSV con encabezados y registros completos, y descarga iCalendar (<code>.ics</code>) válida excluyendo citas canceladas.</td><td class="pass">Aprobada en ejecución automatizada</td><td>I</td></tr>
+</tbody></table>
+</section>
+<section class="page-break">
+<h2>Análisis de riesgos y comentarios</h2>
+<table class="data"><thead><tr><th>No.</th><th>Referencia</th><th>Hallazgo / acción recomendada</th><th>Clase</th><th>Responsable</th><th>Estado</th></tr></thead><tbody>
+<tr><td>1</td><td>backend/export_utils.py</td><td><strong>Observación corregida:</strong> uso de <code>datetime.utcnow()</code> obsoleto en Python 3.14 y escape de caracteres en <code>_ics_escape</code>. <strong>Resolución:</strong> migrado a <code>datetime.now(timezone.utc)</code> y escape RFC 5545 corregido.</td><td class="pass">R (Corregido)</td><td>Equipo de desarrollo</td><td>Cerrado</td></tr>
+<tr><td>2</td><td>api.py (<code>send-reminders</code>)</td><td>Actualmente los recordatorios para citas de mañana se disparan manualmente desde el botón "Recordatorios". Para automatizarlos a una hora fija diaria, agregar un cron job o tarea programada en el servidor.</td><td>R</td><td>Equipo de desarrollo</td><td>Recomendación</td></tr>
+</tbody></table>
+<h3>Recorrido de código / inspección</h3>
+<table class="data"><thead><tr><th>No.</th><th>Referencia</th><th>Resultado</th><th>Clase</th></tr></thead><tbody>
+<tr><td>1</td><td>public/js/booking/public-booking.js</td><td>Flujo guiado en 4 pasos (servicio, fecha, horario disponible, datos del cliente) con protección anti-XSS mediante <code>esc()</code>.</td><td>I</td></tr>
+<tr><td>2</td><td>public/js/clients/clients.js, reports.js</td><td>Búsqueda instantánea de clientes, modal de historial y filtros de fecha en reportes.</td><td>I</td></tr>
+</tbody></table>
+<h3>Acciones de seguimiento</h3>
+<table class="data"><thead><tr><th>Acción</th><th>Responsable</th><th>Fecha prevista</th><th>Fecha completada</th></tr></thead><tbody>
+<tr><td>Verificar visualmente en navegador móvil (o DevTools) el menú lateral colapsable y el escaneo del código QR del portal público.</td><td>Equipo QA / Propietario</td><td>Antes de publicar</td><td>Pendiente de prueba visual</td></tr>
+</tbody></table>
+</section>
+<p class="footer">Documento generado tras pruebas automatizadas reales ejecutadas el 23/11/2026.</p>
+</body>
+</html>
